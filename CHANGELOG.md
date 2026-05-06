@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.2 — 2026-05-06
+
+### Fixed
+- **Auto-resume now waits for reset time**: when Claude shows an explicit `resets at HH:MM` clock time, `Watcher` now resumes at that exact reset timestamp (including next-day rollover) instead of relying only on relative wait parsing.
+
+---
+
 ## 0.5.1 — 2026-05-06
 
 ### Fixed

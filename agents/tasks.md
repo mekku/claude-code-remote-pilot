@@ -18,3 +18,9 @@
 - [x] bin/claude-pilot.js: `web [port]` REPL command, auto-opens browser
 - [x] Watcher.js: fix shell injection in tmux send-keys (spawnSync array args)
 - [x] CHANGELOG.md, README.md updated, version bumped to 0.4.0
+
+## Completed (v0.6.0)
+- [x] config.js: store command in session history
+- [x] SessionManager.js: command param in spawn(), respawn() method
+- [x] WebServer.js: command in POST /api/sessions, POST /api/sessions/:name/respawn
+- [x] ui.html: Respawn button for offline sessions, command dropdown in Create form, Agent field in session info

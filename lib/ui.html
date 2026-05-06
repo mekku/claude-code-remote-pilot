@@ -660,6 +660,18 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
     }
   };
 
+  const handleRespawn = async () => {
+    try {
+      const res = await apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/respawn`, { method: 'POST' });
+      if (!res.ok) {
+        const d = await res.json();
+        alert(d.error || 'Failed to respawn');
+      }
+    } catch (e) {
+      if (e.message !== 'Unauthorized') alert('Network error');
+    }
+  };
+
   // Render terminal HTML (ANSI → HTML, with plain-text fallback)
   let _termHtml = '';
   if (output) {
@@ -687,6 +699,11 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
           <div className="detail-meta" style={{ maxWidth: 480, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.path}</div>
         </div>
         <div className="detail-actions">
+          {isOffline && (
+            <button className="btn btn-sm btn-primary" onClick={handleRespawn}>
+              ↺ Respawn
+            </button>
+          )}
           {!isOffline && (
             <button className="btn btn-sm" onClick={copyAttachCmd} title={`tmux attach -t ${session.name}`}>
               {copyOk ? '✓ Copied' : '⊞ New Terminal'}
@@ -752,6 +769,7 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
           <div className="card">
             <h3>Session Info</h3>
             <div className="info-row"><span className="info-label">Status</span><StatusPill status={session.status} /></div>
+            <div className="info-row"><span className="info-label">Agent</span><span className="info-value" style={{ fontSize: 11 }}>{session.command || 'claude'}</span></div>
             <div className="info-row"><span className="info-label">Started</span><span className="info-value" style={{ fontSize: 11 }}>{relativeTime(session.startedAt)}</span></div>
             <div className="info-row"><span className="info-label">Tokens</span><span className="info-value" style={{ fontSize: 11 }}>{formatTokens(session.tokens)}</span></div>
             {session.status === 'limit' && session.resumeAt && (
@@ -770,18 +788,23 @@ function CreateSessionScreen({ onBack, onCreated }) {
   const [name, setName] = useState('');
   const [path, setPath] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [command, setCommand] = useState('claude');
+  const [customCommand, setCustomCommand] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const resolvedCommand = command === 'custom' ? customCommand.trim() : command;
+
   const handleCreate = async () => {
     if (!name.trim() || !path.trim()) { setError('Session name and working directory are required.'); return; }
+    if (command === 'custom' && !customCommand.trim()) { setError('Enter a custom command.'); return; }
     setError('');
     setLoading(true);
     try {
       const res = await apiFetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), path: path.trim(), prompt: prompt.trim() || undefined }),
+        body: JSON.stringify({ name: name.trim(), path: path.trim(), prompt: prompt.trim() || undefined, command: resolvedCommand }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Failed to create session.'); return; }
@@ -808,9 +831,23 @@ function CreateSessionScreen({ onBack, onCreated }) {
         <input className="form-input" placeholder="~/projects/app" value={path} onChange={e => setPath(e.target.value)} />
       </div>
       <div className="form-group">
+        <label className="form-label">Agent</label>
+        <select className="form-select" value={command} onChange={e => setCommand(e.target.value)}>
+          <option value="claude">claude (Claude Code)</option>
+          <option value="opencode">opencode</option>
+          <option value="custom">custom…</option>
+        </select>
+        {command === 'custom' && (
+          <input className="form-input" style={{ marginTop: 8 }} placeholder="e.g. aider" value={customCommand} onChange={e => setCustomCommand(e.target.value)} />
+        )}
+        {command === 'opencode' && (
+          <div className="form-hint">Status indicators (running/idle) are claude-only — opencode sessions will show as idle but are fully controllable.</div>
+        )}
+      </div>
+      <div className="form-group">
         <label className="form-label">Initial prompt <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span></label>
-        <textarea className="form-textarea" placeholder="What should Claude work on?" value={prompt} onChange={e => setPrompt(e.target.value)} rows={4} />
-        <div className="form-hint">Sent to Claude 2 seconds after the session starts.</div>
+        <textarea className="form-textarea" placeholder="What should the agent work on?" value={prompt} onChange={e => setPrompt(e.target.value)} rows={4} />
+        <div className="form-hint">Sent 2 seconds after the session starts.</div>
       </div>
       {error && <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--error-soft)', color: 'var(--error)', borderRadius: 'var(--radius-sm)', fontSize: 13 }}>{error}</div>}
       <div className="form-actions">
