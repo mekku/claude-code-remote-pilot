@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.7 — 2026-05-06
+
+### Fixed
+- **Running status now takes precedence over stale limit text**: watcher checks recent running markers before limit window matching, preventing false re-entry into `limit` when old limit lines remain in scrollback.
+
+---
+
 ## 0.5.5 — 2026-05-06
 
 ### Fixed
