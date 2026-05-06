@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0 — 2026-05-06
+
+### Added
+- **Web dashboard**: `web [port]` REPL command starts a browser UI at `http://127.0.0.1:3742` (auto-opens in default browser).
+  - Live session list via SSE (Server-Sent Events) — no polling, no WebSocket dependency
+  - Terminal output viewer with 2-second auto-refresh
+  - Send message to Claude from the browser
+  - Create new sessions from the browser (name, path, optional initial prompt)
+  - Kill sessions from the session detail view
+  - Dark/light mode, responsive layout (mobile + desktop)
+  - Status activity log: tracks transitions between running / idle / needs-response / limit / offline
+  - All tmux calls use `spawnSync` array args — shell-injection safe; server binds to `127.0.0.1` only
+
+### Fixed
+- Shell injection vulnerability in `Watcher.js`: `tmux send-keys` on auto-resume now uses `spawnSync` with array args instead of shell interpolation.
+
+---
+
 ## 0.3.1 — 2026-05-06
 
 ### Changed

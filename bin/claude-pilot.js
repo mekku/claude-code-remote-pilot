@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const readline = require('readline');
 const SessionManager = require('../lib/SessionManager');
+const WebServer = require('../lib/WebServer');
 const config = require('../lib/config');
 
 // ─── dependency checks ────────────────────────────────────────────────────────
@@ -318,6 +319,7 @@ const HELP = `
   spawn <path> [name]   Start Claude at path (name defaults to dir name)
   list                  Show all sessions
   watch                 Live session monitor  (q to exit)
+  web [port]            Start web dashboard  (default port 3742)
   attach <name>         Open tmux session in this terminal
   kill <name>           Stop a session
   resume [message]      Show or set the message sent after a limit resets
@@ -427,6 +429,22 @@ ${HELP}`);
           if (!all.length) { console.log('  No sessions.'); break; }
           startWatch(manager, replRl);
           return;
+        }
+        case 'web': {
+          const port = parseInt(args[0]) || 3742;
+          let webServer = manager._webServer;
+          if (webServer) {
+            console.log(`  Web dashboard already running at http://127.0.0.1:${webServer.port}`);
+            break;
+          }
+          webServer = new WebServer(manager, port);
+          manager._webServer = webServer;
+          webServer.start();
+          const url = `http://127.0.0.1:${port}`;
+          console.log(`  ✓ Web dashboard started at ${url}`);
+          const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
+          spawn(opener, [url], { stdio: 'ignore', detached: true }).unref();
+          break;
         }
         case 'attach': {
           if (!args[0]) { console.log('  Usage: attach <name>'); break; }

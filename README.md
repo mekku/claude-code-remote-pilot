@@ -104,10 +104,32 @@ sudo apt update && sudo apt install tmux
 | `spawn <path> [name]` | Start Claude at a path. Name defaults to the directory name. |
 | `list` | One-shot status of all sessions. |
 | `watch` | Live dashboard with offline session history. Press a number to select, `q` to exit. |
+| `web [port]` | Start the web dashboard at `http://127.0.0.1:3742` (or given port). Opens browser automatically. |
 | `attach <name>` | Open a tmux session in the current terminal. |
 | `kill <name>` | Stop a session. |
 | `help` | Show command reference. |
 | `exit` | Quit the pilot. Sessions keep running in tmux. |
+
+---
+
+## Web dashboard
+
+Type `web` in the REPL to open a browser dashboard:
+
+```
+claude-pilot> web
+  ✓ Web dashboard started at http://127.0.0.1:3742
+```
+
+The dashboard shows all sessions (live and offline), lets you:
+
+- View terminal output for each session (auto-refreshes every 2 seconds)
+- Send a message to Claude directly from the browser
+- Spawn new sessions with a name, path, and optional initial prompt
+- Kill sessions
+- See a live activity log of status transitions
+
+The server binds to `127.0.0.1` only — not reachable from other machines. Use `web <port>` to use a custom port.
 
 ---
 
@@ -173,7 +195,7 @@ Start Claude without `--dangerously-skip-permissions` unless you know what you'r
 - [x] Telegram notifications
 - [x] interactive REPL — spawn, watch, attach, kill
 - [x] multi-session support
-- [ ] web dashboard (sessions connect to pilot server)
+- [x] web dashboard — `web [port]` command, React SPA, SSE live updates
 - [x] persistent session history with offline session display
 - [ ] pluggable notification providers
 - [ ] safety / policy engine

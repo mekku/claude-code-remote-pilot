@@ -1,18 +1,20 @@
 # Tasks
 
-## In Progress
-- Session history + interactive watch feature
-  - [x] lib/config.js: addToHistory, removeFromHistory, getHistory
-  - [ ] lib/SessionManager.js: call addToHistory in spawn() and adopt()
-  - [ ] bin/claude-pilot.js: rewrite startWatch() with offline sessions + interactive actions
+## Completed (v0.3.0)
+- [x] lib/config.js: addToHistory, removeFromHistory, getHistory
+- [x] lib/SessionManager.js: call addToHistory in spawn() and adopt()
+- [x] bin/claude-pilot.js: interactive watch with offline sessions, auto-enter on start
+- [x] CHANGELOG.md created
+- [x] README.md updated with new watch UI
+- [x] version bumped to 0.3.0 and published to npm
 
-## Completed
-- Package rename to claude-code-remote-pilot
-- Dep checks (tmux, claude) with auto-install
-- Telegram setup and persistence
-- REPL server architecture
-- Session status detection (running/idle/needs-response/limit)
-- Token usage in watch
-- Persistent sessions config
-- Uppercase default prompts
-- Session history functions in config.js
+## Completed (v0.3.1)
+- [x] Watcher.js: reduce checkInterval from 30s → 5s
+- [x] Watch screen refresh from 2s → 1s
+
+## Completed (v0.4.0)
+- [x] lib/WebServer.js: HTTP server with SSE, REST API, 127.0.0.1 binding, spawnSync array args
+- [x] lib/ui.html: React SPA dashboard (SSE live data, terminal polling, send message, spawn, kill)
+- [x] bin/claude-pilot.js: `web [port]` REPL command, auto-opens browser
+- [x] Watcher.js: fix shell injection in tmux send-keys (spawnSync array args)
+- [x] CHANGELOG.md, README.md updated, version bumped to 0.4.0
