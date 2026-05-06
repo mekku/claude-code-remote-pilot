@@ -1,9 +1,17 @@
 # Changelog
 
-## 0.5.3 — 2026-05-06
+## 0.5.5 — 2026-05-06
+
+### Fixed
+- **Respawn loading no longer appears stuck**: web respawn now has a request timeout and surfaces a clear timeout error when the API call hangs, so the button always returns to clickable state.
+- **Terminal output now feels realtime**: session detail terminal polling runs at a faster cadence and triggers immediate output refresh after sending input/keys, improving perceived connect speed and responsiveness.
+- **"Connecting…" no longer gets stuck**: terminal detail view now clears connecting state on poll failures, shows a retrying error hint, and fixes session state initialization order for stable render behavior.
+
+## 0.5.4 — 2026-05-06
 
 ### Fixed
 - **Web UI respawn completed**: offline session respawn now has loading/error feedback and immediately updates session detail state after success.
+- **Web respawn now matches CLI spawn behavior**: respawn starts a fresh session from stored path and default command semantics (same as watch-mode spawn), avoiding failures caused by stale stored command values.
 
 ---
 

@@ -575,6 +575,7 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus }) {
 
 /* --- Session Detail --- */
 function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
+  const isOffline = session.status === 'offline';
   const [output, setOutput] = useState('');
   const [msg, setMsg] = useState('');
   const [sending, setSending] = useState(false);
@@ -582,9 +583,11 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   const [respawning, setRespawning] = useState(false);
   const [respawnError, setRespawnError] = useState('');
   const [copyOk, setCopyOk] = useState(false);
+  const [connecting, setConnecting] = useState(!isOffline);
+  const [pollError, setPollError] = useState(false);
   const terminalRef = useRef(null);
   const inputRef = useRef(null);
-  const isOffline = session.status === 'offline';
+  const pollNowRef = useRef(() => {});
 
   const copyAttachCmd = () => {
     const cmd = `tmux attach -t ${session.name}`;
@@ -599,18 +602,47 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
     if (!isOffline) setTimeout(() => inputRef.current?.focus(), 50);
   }, [session.name, isOffline]);
 
-  // Poll terminal output every 2s
+  // Poll terminal output at near-realtime cadence
   useEffect(() => {
-    if (isOffline) return;
+    if (isOffline) {
+      setConnecting(false);
+      setPollError(false);
+      return;
+    }
+    let mounted = true;
+    let inFlight = false;
+
     const poll = () => {
+      if (inFlight) return;
+      inFlight = true;
       apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/output`, { cache: 'no-store' })
         .then(r => r.json())
-        .then(d => setOutput(d.output || ''))
-        .catch(e => { if (e && e.message !== 'Unauthorized') console.error('[ccp] output poll error:', e); });
+        .then(d => {
+          if (!mounted) return;
+          setOutput(d.output || '');
+          setConnecting(false);
+          setPollError(false);
+        })
+        .catch(e => {
+          if (!mounted) return;
+          if (e && e.message !== 'Unauthorized') console.error('[ccp] output poll error:', e);
+          setConnecting(false);
+          setPollError(true);
+        })
+        .finally(() => {
+          inFlight = false;
+        });
     };
+
+    setConnecting(true);
+    pollNowRef.current = poll;
     poll();
-    const t = setInterval(poll, 2000);
-    return () => clearInterval(t);
+    const t = setInterval(poll, 600);
+    return () => {
+      mounted = false;
+      pollNowRef.current = () => {};
+      clearInterval(t);
+    };
   }, [session.name, isOffline]);
 
   // Auto-scroll terminal to bottom
@@ -628,6 +660,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
         body: JSON.stringify({ message: msg }),
       });
       setMsg('');
+      pollNowRef.current();
     } catch {
     } finally {
       setSending(false);
@@ -643,6 +676,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key }),
       });
+      pollNowRef.current();
     } catch {}
     setTimeout(() => inputRef.current?.focus(), 0);
   };
@@ -666,8 +700,13 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
     if (respawning) return;
     setRespawning(true);
     setRespawnError('');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
     try {
-      const res = await apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/respawn`, { method: 'POST' });
+      const res = await apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/respawn`, {
+        method: 'POST',
+        signal: controller.signal,
+      });
       const data = await res.json();
       if (!res.ok) {
         setRespawnError(data.error || 'Failed to respawn');
@@ -675,8 +714,13 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
       }
       onRespawned(data);
     } catch (e) {
+      if (e && e.name === 'AbortError') {
+        setRespawnError('Respawn timeout. Please try again.');
+        return;
+      }
       if (e.message !== 'Unauthorized') setRespawnError('Network error');
     } finally {
+      clearTimeout(timeoutId);
       setRespawning(false);
     }
   };
@@ -754,7 +798,11 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
                 ? '<span style="color:oklch(50% 0.018 50)">Session is offline — no output available.</span>'
                 : _termHtml
                   ? _termHtml + '<span style="opacity:0.4">▊</span>'
-                  : '<span style="color:oklch(50% 0.018 50)">Connecting…</span>'
+                  : (connecting
+                      ? '<span style="color:oklch(50% 0.018 50)">Connecting…</span>'
+                      : (pollError
+                          ? '<span style="color:oklch(64% 0.20 28)">Can\'t read terminal output. Retrying…</span>'
+                          : '<span style="color:oklch(50% 0.018 50)">No output yet.</span>'))
             }}
           />
 
