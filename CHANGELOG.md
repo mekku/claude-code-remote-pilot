@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.4 — 2026-05-06
+
+### Added
+- Press `w` in watch mode to open (or reuse) the web dashboard in the browser. Starts the server on `127.0.0.1:3742` if not already running. Shown in the watch footer: `w: web ui`.
+
+---
+
 ## 0.4.3 — 2026-05-06
 
 ### Added

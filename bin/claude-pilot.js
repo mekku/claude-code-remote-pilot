@@ -170,7 +170,7 @@ function renderWatchTable(allSessions, selectedIdx) {
       footer = `  [t] terminal   [k] kill   Esc: back`;
     }
   } else {
-    footer = `  [1-${Math.min(allSessions.length, 9)}]: select session   q: exit watch`;
+    footer = `  [1-${Math.min(allSessions.length, 9)}]: select session   w: web ui   q: exit watch`;
   }
 
   return ['\n', '  Claude Code Remote Pilot', bar, header, bar, ...rows, bar, footer, ''].join('\n');
@@ -222,6 +222,18 @@ function startWatch(manager, rl) {
 
     if (selectedIdx < 0) {
       if (str === 'q' || str === 'Q') { exitWatch(); return; }
+      if (str === 'w' || str === 'W') {
+        let webServer = manager._webServer;
+        if (!webServer) {
+          webServer = new WebServer(manager, 3742, '127.0.0.1');
+          manager._webServer = webServer;
+          webServer.start();
+        }
+        const url = `http://${webServer.host}:${webServer.port}`;
+        const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
+        spawn(opener, [url], { stdio: 'ignore', detached: true }).unref();
+        return;
+      }
       const n = parseInt(str);
       if (!isNaN(n) && n >= 1 && n <= Math.min(allSessions.length, 9)) {
         selectedIdx = n - 1;
