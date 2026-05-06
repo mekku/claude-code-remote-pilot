@@ -5,7 +5,7 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mekku/claude-code-remote-pilot.git"
+    "url": "git+https://github.com/mekku/claude-code-remote-pilot.git"
   },
   "homepage": "https://github.com/mekku/claude-code-remote-pilot#readme",
   "bugs": {
