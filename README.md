@@ -1,10 +1,63 @@
 # Claude Code Remote Pilot
 
-Spawn and supervise multiple Claude Code sessions from a single interactive terminal.
+Keep Claude Code running while you're away from your desk.
 
-Run it once. Spawn Claude into as many project directories as you want. Walk away — it handles usage limits, waits for resets, sends `continue` automatically, and notifies you on Telegram. Come back to finished work.
+A small self-hosted helper tool for people who run long Claude Code sessions and are tired of manually resuming after token limits.
 
-Each Claude session lives in its own named tmux session. You can `tmux attach -t <name>` from any terminal at any time, independently of the pilot.
+Originally built just for personal use… then it slowly grew 😅
+
+---
+
+## Why?
+
+I kept hitting the same problem:
+
+- Claude Code stopped after hitting token limits
+- long-running tasks needed babysitting
+- sometimes I wanted to leave home while a task was still running
+- checking progress remotely was annoying
+
+At first I only wanted auto-resume. Then it slowly turned into a small remote workflow tool.
+
+---
+
+## What this is NOT
+
+- a hosted platform
+- an "AI agent framework"
+- a replacement for Claude Code
+- a polished enterprise product
+
+It's just a practical helper tool for people running Claude Code for long periods.
+
+---
+
+## Features
+
+- Auto-detect Claude Code limit states and resume automatically
+- Persistent tmux-based sessions that outlive the pilot process
+- Web UI for monitoring and control from phone or any browser — with full ANSI color terminal rendering
+- Telegram notifications when sessions need attention
+- Browser desktop notifications on status changes
+- Broadcast a message to all active sessions at once
+- Lightweight, self-hosted — just Node.js and tmux
+- Experimental but surprisingly useful 👀
+
+---
+
+## Current Status
+
+Very experimental. Built quickly to scratch a personal itch, so expect rough edges. If you try it and hit weird issues, feel free to open an issue or PR.
+
+---
+
+## Typical Workflow
+
+1. Start the pilot and spawn Claude Code sessions
+2. Leave it running — go touch grass
+3. Pilot detects limit hits and auto-resumes
+4. Get notified via Telegram or browser notification
+5. Check progress remotely from your phone
 
 ---
 
@@ -214,7 +267,7 @@ Cloudflare Access puts a login wall in front of the tunnel — no inbound ports,
 2. Choose **Self-hosted**, set the domain to `pilot.yourdomain.com`
 3. Add a policy: allow your email address (or Google/GitHub OAuth)
 
-After this, anyone reaching `pilot.yourdomain.com` must authenticate with Cloudflare before the dashboard loads. This is separate from the pilot's own password option — you can use either, both, or neither depending on your threat model.
+After this, anyone reaching `pilot.yourdomain.com` must authenticate with Cloudflare before the dashboard loads.
 
 ### Run the tunnel as a background service
 
@@ -296,12 +349,19 @@ Start Claude without `--dangerously-skip-permissions` unless you know what you'r
 - [x] broadcast message to all sessions
 - [x] auto-discover untracked tmux sessions on startup
 - [ ] auto-yes rules — confirm prompts automatically by pattern
+- [ ] smarter retry logic
+- [ ] usage statistics and session timeline
+- [ ] remote command queue
 - [ ] pluggable notification providers
 
 ---
 
-## Philosophy
+## Contributing
 
-A human-supervised local runtime for Claude Code. Not a fully autonomous agent loop.
+PRs, ideas, and weird experiments are welcome 😄
 
-Small tools first. Dashboard later.
+---
+
+## License
+
+MIT
