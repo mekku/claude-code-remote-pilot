@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 — 2026-05-06
+
+### Fixed
+- False limit detection when running `/usage` inside a Claude session. The `/usage` output contains "Resets 6:30pm" which was matching the `resets` keyword. Tightened `LIMIT_RE` to require more specific phrases (`hit your limit`, `usage limit`, `rate limit`, `limit reached`, `try again after`) that only appear in actual limit-hit messages.
+
+---
+
 ## 0.4.1 — 2026-05-06
 
 ### Added
