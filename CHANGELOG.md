@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.6 — 2026-05-06
+
+### Fixed
+- False `limit` status when a session has recovered from a prior limit hit. Root cause: `LIMIT_RE` was tested against the full 500-line tmux scrollback, so old limit text in scroll history kept re-triggering limit detection even after the session resumed. Now `LIMIT_RE` is checked against only the last 15 non-empty lines (`limitWindow`), matching the same windowed approach used for `RESPONSE_RE` and `RUNNING_RE`.
+
+---
+
 ## 0.4.5 — 2026-05-06
 
 ### Added
