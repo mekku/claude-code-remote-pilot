@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.1 — 2026-05-06
+
+### Fixed
+- **Terminal always "Connecting…"**: two root causes patched:
+  1. `Cache-Control: no-store` added to all API responses — browsers were heuristic-caching the first (sometimes empty) output response and serving stale data on every subsequent poll.
+  2. `ansiToHtml` is now pre-computed before the JSX return with a try-catch — any parsing edge case falls back to ANSI-stripped plain text instead of silently breaking the render.
+- **Poll errors are now logged** to the browser console (`[ccp] output poll error:`) instead of silently swallowed, so future issues are diagnosable.
+- Added `cache: 'no-store'` to the `fetch` call in the output poll (belt-and-suspenders alongside the server header).
+
+---
+
 ## 0.5.0 — 2026-05-06
 
 ### Added

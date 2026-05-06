@@ -601,10 +601,10 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
   useEffect(() => {
     if (isOffline) return;
     const poll = () => {
-      apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/output`)
+      apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/output`, { cache: 'no-store' })
         .then(r => r.json())
         .then(d => setOutput(d.output || ''))
-        .catch(() => {});
+        .catch(e => { if (e && e.message !== 'Unauthorized') console.error('[ccp] output poll error:', e); });
     };
     poll();
     const t = setInterval(poll, 2000);
@@ -660,6 +660,17 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
     }
   };
 
+  // Render terminal HTML (ANSI → HTML, with plain-text fallback)
+  let _termHtml = '';
+  if (output) {
+    try {
+      _termHtml = ansiToHtml(output);
+    } catch(e) {
+      console.error('[ccp] ansiToHtml error:', e);
+      _termHtml = output.replace(/\x1b\[[0-9;]*m/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+  }
+
   // Terminal height: fill viewport minus chrome
   const terminalStyle = {
     height: 'calc(100vh - 210px)',
@@ -708,8 +719,8 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
             dangerouslySetInnerHTML={{ __html:
               isOffline
                 ? '<span style="color:oklch(50% 0.018 50)">Session is offline — no output available.</span>'
-                : output
-                  ? ansiToHtml(output) + '<span style="opacity:0.4">▊</span>'
+                : _termHtml
+                  ? _termHtml + '<span style="opacity:0.4">▊</span>'
                   : '<span style="color:oklch(50% 0.018 50)">Connecting…</span>'
             }}
           />
