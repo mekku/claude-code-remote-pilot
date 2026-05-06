@@ -488,6 +488,16 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
     }
   };
 
+  const sendKey = async (key) => {
+    try {
+      await fetch(`/api/sessions/${encodeURIComponent(session.name)}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key }),
+      });
+    } catch {}
+  };
+
   const handleKill = async () => {
     if (!confirm(`End session "${session.name}"?`)) return;
     setKilling(true);
@@ -543,7 +553,7 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
             <div style={{ marginTop: 16 }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Send message to Claude</label>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <input
                     className="form-input"
                     placeholder="Type a message…"
@@ -556,6 +566,11 @@ function SessionDetailScreen({ session, onBack, onKilled }) {
                   <button className="btn btn-primary" onClick={sendMessage} disabled={sending || !msg.trim()}>
                     {Icons.send} {sending ? 'Sending…' : 'Send'}
                   </button>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button className="btn btn-sm" onClick={() => sendKey('Escape')} title="Send Escape key">Esc</button>
+                  <button className="btn btn-sm" onClick={() => sendKey('C-c')} title="Send Ctrl+C">Ctrl+C</button>
+                  <button className="btn btn-sm" onClick={() => sendKey('C-d')} title="Send Ctrl+D">Ctrl+D</button>
                 </div>
               </div>
             </div>

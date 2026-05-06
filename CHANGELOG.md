@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1 — 2026-05-06
+
+### Added
+- Web dashboard: **Esc**, **Ctrl+C**, and **Ctrl+D** buttons in the terminal send area — sends the raw key to the tmux session without appending Enter.
+- `POST /api/sessions/:name/send` now accepts `{ key: "Escape" }` (or any tmux key name) in addition to `{ message: "..." }`.
+
+---
+
 ## 0.4.0 — 2026-05-06
 
 ### Added
