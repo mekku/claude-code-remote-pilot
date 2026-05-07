@@ -5,9 +5,9 @@
 [![npm total downloads](https://img.shields.io/npm/dt/claude-code-remote-pilot?style=flat-square&color=blueviolet)](https://www.npmjs.com/package/claude-code-remote-pilot)
 [![license](https://img.shields.io/npm/l/claude-code-remote-pilot?style=flat-square&color=green)](./LICENSE)
 
-Keep Claude Code running while you're away from your desk.
+A self-hosted supervisor and remote dashboard for running multiple Claude Code sessions — monitor, control, and queue work from anywhere.
 
-A small self-hosted helper tool for people who run long Claude Code sessions and are tired of manually resuming after token limits.
+Start sessions on your machine, expose the dashboard through a secure tunnel, and manage everything from your phone while you're away.
 
 Originally built just for personal use… then it slowly grew 😅
 
@@ -17,14 +17,14 @@ Originally built just for personal use… then it slowly grew 😅
 
 ## Why?
 
-I kept hitting the same problem:
+I kept running into the same problems with long Claude Code tasks:
 
-- Claude Code stopped after hitting token limits
-- long-running tasks needed babysitting
-- sometimes I wanted to leave home while a task was still running
-- checking progress remotely was annoying
+- sessions stopped at token limits and needed a manual nudge to continue
+- running multiple sessions at once meant juggling several terminals
+- I wanted to leave the machine running and check progress from my phone
+- queueing up the next prompt while one task was still in progress was awkward
 
-At first I only wanted auto-resume. Then it slowly turned into a small remote workflow tool.
+What started as a simple auto-resume script turned into a full remote control panel.
 
 ---
 
@@ -35,23 +35,40 @@ At first I only wanted auto-resume. Then it slowly turned into a small remote wo
 - a replacement for Claude Code
 - a polished enterprise product
 
-It's just a practical helper tool for people running Claude Code for long periods.
+It's a practical helper tool for people who run Claude Code for extended periods and want more control over what's happening.
 
 ---
 
 ## Features
 
-- Auto-detect Claude Code limit states and resume automatically
-- Persistent tmux-based sessions that outlive the pilot process
-- Web UI for monitoring and control from phone or any browser — with full ANSI color terminal rendering
-- **Cloudflared tunnel auto-setup** — built-in `--tunnel` flag exposes the dashboard publicly in one step, with password protection prompts and Telegram notification of the URL
-- **Message queue per session** — pre-queue prompts to be sent automatically when a session goes idle, or play them manually one by one
-- **Session labels** — assign an emoji and color accent to each session for quick visual identification
-- **Sort sessions** by status (running first) or alphabetically by name
-- Telegram notifications when sessions need attention
+**Session management**
+- Spawn and supervise multiple Claude Code sessions, each in its own persistent tmux window
+- Auto-detect token limit states and resume automatically
+- Sessions outlive the pilot process — restart the pilot without losing your work
+
+**Web dashboard**
+- Full-color terminal output rendered in the browser (24-bit ANSI, bold, dim, italic)
+- Send messages, special keys (Esc, ^C, ^D, Enter), or broadcast to all sessions at once
+- Spawn, kill, or respawn sessions from the browser
+- Live status updates via SSE with fallback polling
 - Browser desktop notifications on status changes
-- Broadcast a message to all active sessions at once
-- Lightweight, self-hosted — just Node.js and tmux
+
+**Message queue**
+- Pre-queue prompts per session and play them manually or with **auto-feed** mode
+- Auto-feed delivers the next queued message automatically when a session goes idle
+
+**Remote access**
+- **Cloudflared tunnel** built in — one flag exposes the dashboard publicly with password protection and sends the URL via Telegram
+- Tunnel URL shown live in the TUI watch screen
+
+**Notifications**
+- Telegram alerts for limit hits, status changes, and tunnel URL on startup
+
+**Organization**
+- **Session labels** — emoji prefix and color accent per session, saved to config
+- **Sort** sessions by status (running first) or alphabetically
+
+Lightweight and self-hosted — just Node.js and tmux.
 
 ---
 
