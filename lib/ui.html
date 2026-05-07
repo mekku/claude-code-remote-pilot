@@ -247,6 +247,18 @@ const storage = {
   setItem(key, val) { try { localStorage.setItem(key, val); } catch { memStore.set(key, val); } },
 };
 
+/* --- Session customization --- */
+const CARD_COLORS = ['', '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
+
+const STATUS_SORT_ORDER = { running: 0, 'needs-response': 1, idle: 2, limit: 3, offline: 4, ended: 5 };
+function sortSessions(sessions, by) {
+  if (by === 'name') return [...sessions].sort((a, b) => a.name.localeCompare(b.name));
+  return [...sessions].sort((a, b) => {
+    const ao = STATUS_SORT_ORDER[a.status] ?? 9, bo = STATUS_SORT_ORDER[b.status] ?? 9;
+    return ao !== bo ? ao - bo : a.name.localeCompare(b.name);
+  });
+}
+
 /* --- Auth module-level helpers --- */
 let _authToken = storage.getItem('ccp-token') || '';
 let _onUnauth = () => {};
@@ -505,8 +517,27 @@ function Sidebar({ currentScreen, onNavigate, sessionCount, open, onClose, conne
   );
 }
 
+/* --- Sort control --- */
+function SortControl({ sortBy, onSortChange }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{ fontSize: 11, color: 'var(--muted)', marginRight: 2 }}>Sort:</span>
+      {['status', 'name'].map(opt => (
+        <button key={opt} onClick={() => onSortChange(opt)} style={{
+          fontSize: 11, padding: '3px 7px', borderRadius: 4, cursor: 'pointer',
+          border: '1px solid var(--border)',
+          background: sortBy === opt ? 'var(--accent-soft)' : 'var(--bg)',
+          color: sortBy === opt ? 'var(--accent)' : 'var(--muted)',
+          fontWeight: sortBy === opt ? 600 : 400,
+        }}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</button>
+      ))}
+    </div>
+  );
+}
+
 /* --- Dashboard --- */
-function DashboardScreen({ onNavigate, sessions, activity, serverStatus }) {
+function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy, onSortChange }) {
+  const sorted = sortSessions(sessions, sortBy);
   const running = sessions.filter(s => s.status === 'running');
   const active = sessions.filter(s => s.status !== 'offline');
   const uptime = serverStatus ? formatUptime(serverStatus.startedAt) : '—';
@@ -523,10 +554,13 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus }) {
 
       <div className="section-header">
         <h2 className="section-title">Sessions</h2>
-        <button className="btn btn-sm" onClick={() => onNavigate('create')}>{Icons.plus} New</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <SortControl sortBy={sortBy} onSortChange={onSortChange} />
+          <button className="btn btn-sm" onClick={() => onNavigate('create')}>{Icons.plus} New</button>
+        </div>
       </div>
 
-      {sessions.length === 0 ? (
+      {sorted.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">⌘</div>
           <div className="empty-state-title">No sessions yet</div>
@@ -534,11 +568,13 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus }) {
         </div>
       ) : (
         <div className="session-cards">
-          {sessions.map(s => (
-            <div key={s.id} className={`session-card ${s.status === 'offline' ? 'offline' : ''}`} onClick={() => onNavigate('detail', s)}>
+          {sorted.map(s => (
+            <div key={s.id} className={`session-card ${s.status === 'offline' ? 'offline' : ''}`}
+              style={s.color ? { borderLeft: `4px solid ${s.color}` } : {}}
+              onClick={() => onNavigate('detail', s)}>
               <div className="session-card-header">
                 <div>
-                  <div className="session-card-name">{s.name}</div>
+                  <div className="session-card-name">{s.emoji ? <span style={{ marginRight: 5 }}>{s.emoji}</span> : null}{s.name}</div>
                   <div className="session-card-meta" style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.path}</div>
                 </div>
                 <StatusPill status={s.status} />
@@ -584,6 +620,8 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   const [output, setOutput] = useState('');
   const [msg, setMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [emoji, setEmoji] = useState(session.emoji || '');
+  const [color, setColor] = useState(session.color || '');
   const [killing, setKilling] = useState(false);
   const [killError, setKillError] = useState('');
   const [respawning, setRespawning] = useState(false);
@@ -602,6 +640,20 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
       setTimeout(() => setCopyOk(false), 2000);
     }).catch(() => {});
   };
+
+  // Sync label fields when navigating between sessions
+  useEffect(() => {
+    setEmoji(session.emoji || '');
+    setColor(session.color || '');
+  }, [session.name]);
+
+  const saveMeta = useCallback((e, c) => {
+    apiFetch(`/api/sessions/${encodeURIComponent(session.name)}/meta`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emoji: e, color: c }),
+    }).catch(() => {});
+  }, [session.name]);
 
   // Auto-focus input on mount and when session changes
   useEffect(() => {
@@ -752,7 +804,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
 
       <div className="detail-header">
         <div>
-          <h2 className="detail-title">{session.name}</h2>
+          <h2 className="detail-title">{emoji ? <span style={{ marginRight: 6 }}>{emoji}</span> : null}{session.name}</h2>
           <div className="detail-meta" style={{ maxWidth: 480, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.path}</div>
         </div>
         <div className="detail-actions">
@@ -849,6 +901,28 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
               <div className="info-row"><span className="info-label">Resumes</span><span className="info-value" style={{ fontSize: 11, color: 'var(--warning)' }}>{relativeTime(session.resumeAt)}</span></div>
             )}
             <div className="info-row"><span className="info-label">tmux</span><span className="info-value" style={{ fontSize: 11 }}>{session.name}</span></div>
+            <div className="info-row" style={{ alignItems: 'flex-start', paddingTop: 10, marginTop: 4, borderTop: '1px solid var(--border)' }}>
+              <span className="info-label" style={{ paddingTop: 4 }}>Label</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <input
+                  value={emoji}
+                  onChange={e => setEmoji(e.target.value)}
+                  onBlur={() => saveMeta(emoji, color)}
+                  maxLength={8}
+                  placeholder="😀"
+                  style={{ width: 44, textAlign: 'center', fontSize: 18, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg)', color: 'var(--fg)', cursor: 'text' }}
+                />
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {CARD_COLORS.map(c => (
+                    <button key={c || 'none'} onClick={() => { setColor(c); saveMeta(emoji, c); }} title={c || 'No color'} style={{
+                      width: 16, height: 16, borderRadius: '50%', padding: 0, cursor: 'pointer', flexShrink: 0,
+                      background: c || 'transparent',
+                      border: color === c ? '2px solid var(--fg)' : c ? '1px solid oklch(0% 0 0 / 0.2)' : '1px dashed var(--muted)',
+                    }} />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -934,14 +1008,18 @@ function CreateSessionScreen({ onBack, onCreated }) {
 }
 
 /* --- Sessions List --- */
-function SessionsScreen({ sessions, onNavigate }) {
+function SessionsScreen({ sessions, onNavigate, sortBy, onSortChange }) {
+  const sorted = sortSessions(sessions, sortBy);
   return (
     <div>
       <div className="section-header">
         <h2 className="section-title">All Sessions</h2>
-        <button className="btn btn-sm" onClick={() => onNavigate('create')}>{Icons.plus} New</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <SortControl sortBy={sortBy} onSortChange={onSortChange} />
+          <button className="btn btn-sm" onClick={() => onNavigate('create')}>{Icons.plus} New</button>
+        </div>
       </div>
-      {sessions.length === 0 ? (
+      {sorted.length === 0 ? (
         <div className="empty-state"><div className="empty-state-icon">⌘</div><div className="empty-state-title">No sessions</div></div>
       ) : (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
@@ -952,12 +1030,14 @@ function SessionsScreen({ sessions, onNavigate }) {
               ))}</tr>
             </thead>
             <tbody>
-              {sessions.map(s => (
+              {sorted.map(s => (
                 <tr key={s.id} style={{ cursor:'pointer',opacity:s.status==='offline'?0.6:1,transition:'background 0.12s' }}
                   onClick={() => onNavigate('detail', s)}
                   onMouseEnter={e => e.currentTarget.style.background='var(--surface-hover)'}
                   onMouseLeave={e => e.currentTarget.style.background=''}>
-                  <td style={{ padding:'12px 14px',fontWeight:600,fontSize:13,borderBottom:'1px solid var(--border)' }}>{s.name}</td>
+                  <td style={{ padding:'12px 14px',fontWeight:600,fontSize:13,borderBottom:'1px solid var(--border)',borderLeft: s.color ? `4px solid ${s.color}` : undefined }}>
+                    {s.emoji ? <span style={{ marginRight: 5 }}>{s.emoji}</span> : null}{s.name}
+                  </td>
                   <td style={{ padding:'12px 14px',fontSize:12,color:'var(--muted)',borderBottom:'1px solid var(--border)',maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{s.path}</td>
                   <td style={{ padding:'12px 14px',borderBottom:'1px solid var(--border)' }}><StatusPill status={s.status} /></td>
                   <td style={{ padding:'12px 14px',fontSize:12,color:'var(--muted)',fontFamily:'var(--font-mono)',borderBottom:'1px solid var(--border)' }}>{relativeTime(s.startedAt)}</td>
@@ -1171,6 +1251,8 @@ function QueuePanel({ session }) {
 function App() {
   const savedTheme = storage.getItem('ccp-theme');
   const [dark, setDark] = useState(savedTheme === 'dark');
+  const [sortBy, setSortByState] = useState(storage.getItem('ccp-sort') || 'status');
+  const setSortBy = (v) => { setSortByState(v); storage.setItem('ccp-sort', v); };
   const [screen, setScreen] = useState('dashboard');
   const [selectedSession, setSelectedSession] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -1279,8 +1361,8 @@ function App() {
 
   const renderScreen = () => {
     switch (screen) {
-      case 'dashboard': return <DashboardScreen onNavigate={navigate} sessions={sessions} activity={activity} serverStatus={serverStatus} />;
-      case 'sessions':  return <SessionsScreen sessions={sessions} onNavigate={navigate} />;
+      case 'dashboard': return <DashboardScreen onNavigate={navigate} sessions={sessions} activity={activity} serverStatus={serverStatus} sortBy={sortBy} onSortChange={setSortBy} />;
+      case 'sessions':  return <SessionsScreen sessions={sessions} onNavigate={navigate} sortBy={sortBy} onSortChange={setSortBy} />;
       case 'create':    return <CreateSessionScreen onBack={() => navigate('dashboard')} onCreated={s => navigate('detail', s)} />;
       case 'detail':    return <SessionDetailScreen session={selectedSession} onBack={() => navigate('dashboard')} onKilled={() => navigate('sessions')} onRespawned={(respawned) => {
         setSessions(prev => {
