@@ -29,8 +29,7 @@ Serves the HTML web dashboard for monitoring Claude sessions remotely. The dashb
 ## Dashboard layout (DashboardScreen)
 
 Top of the page:
-1. **Stat row** — 3 cards: Running (count / of total), Active (tmux sessions), Supervisor (online + port). Desktop: 3-column grid.
-2. **Broadcast bar** — send the same message to all active sessions at once; hidden when no active sessions.
+1. **Stat row** — 4 cards in a grid: Running (count / of total), Active (tmux sessions), Supervisor (online + port), **Broadcast** (inline input + Send button; disabled with placeholder when no active sessions).
 3. **Sessions header** — controls for sound, Telegram toggle, snippet lines, sort order, and New session button.
 4. **Session cards** — one card per session with status pill, snippet preview, quick-reply, and CTA buttons.
 5. **Recent Activity** — timestamped log of status transitions (shown only when non-empty).
