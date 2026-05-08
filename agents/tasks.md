@@ -1,5 +1,9 @@
 # Tasks
 
+## Current version: 0.6.6 (published)
+
+---
+
 ## Completed (v0.3.0)
 - [x] lib/config.js: addToHistory, removeFromHistory, getHistory
 - [x] lib/SessionManager.js: call addToHistory in spawn() and adopt()
@@ -19,30 +23,55 @@
 - [x] Watcher.js: fix shell injection in tmux send-keys (spawnSync array args)
 - [x] CHANGELOG.md, README.md updated, version bumped to 0.4.0
 
-## Completed (v0.6.0)
-- [x] config.js: store command in session history
-- [x] SessionManager.js: command param in spawn(), respawn() method
-- [x] WebServer.js: command in POST /api/sessions, POST /api/sessions/:name/respawn
-- [x] ui.html: Respawn button for offline sessions, command dropdown in Create form, Agent field in session info
-
-## Completed (v0.5.7 → v0.6.0 patch)
-- [x] WebServer.js: startTunnel(), stopTunnel(), stop() calls stopTunnel()
-- [x] bin/claude-pilot.js: cloudflaredInstallCmd(), startup tunnel prompts with password recommendation
-- [x] bin/claude-pilot.js: `web --tunnel` flag in REPL command
-- [x] bin/claude-pilot.js: Telegram notification when tunnel URL is ready
-
 ## Completed (v0.5.14)
 - [x] config.js: CCP_CONFIG_PATH env override for test isolation
 - [x] test/config.test.js: 14 unit tests for all config functions
 - [x] test/webserver.test.js: 20 HTTP integration tests (auth, queue CRUD, auto-feed, meta)
 - [x] package.json: added "test" script (node --test)
 
-## Completed (terminal UX + auto-yes)
+## Completed (v0.6.0 — terminal UX + menu detection)
 - [x] ui.html: command history — ↑/↓ recalls sent messages when input has text
 - [x] ui.html: ↑/↓ forward to tmux when input is empty (navigate Claude menus)
-- [x] ui.html: Tab key forwarded to tmux (tab-completion / cycle options)
-- [x] ui.html: Ctrl+C / Ctrl+D send to tmux when input is empty
-- [x] ui.html: Ctrl+U clears the input line; Ctrl+L sends clear-screen to tmux
-- [x] ui.html: clicking the terminal body focuses the input
-- [x] ui.html: Auto-yes toggle — presses Enter automatically when Claude shows a permission prompt
-- [x] ui.html: ↑ ↓ ⇥ buttons added to terminal footer
+- [x] ui.html: Tab key forwarded to tmux; Ctrl+C/D/U/L
+- [x] ui.html: Auto-yes toggle — presses Enter automatically when needs-response
+- [x] ui.html: ↑ ↓ ⇥ buttons in terminal footer
+- [x] ui.html: detectMenuOptions() — numbered menus become CTA buttons
+- [x] ui.html: ollama fallback via GET /api/sessions/:name/menu
+- [x] ui.html: SessionCard — snippet, CTA buttons, quick-reply input
+- [x] WebServer.js: _getSnippetAndMenu(), _detectMenuOptionsFromText(), _detectMenuWithOllama()
+- [x] WebServer.js: GET /api/sessions/:name/menu endpoint
+- [x] bin/claude-pilot.js: watch sorted alphabetically by name
+
+## Completed (v0.6.1)
+- [x] ui.html: snippet shows up to 4 lines, strip separator/blank lines
+- [x] ui.html: menu CTA — one option per full-width row, truncated with hover tooltip
+
+## Completed (v0.6.2)
+- [x] bin/claude-pilot.js: LAN binding question on startup; shows LAN IP in output
+- [x] WebServer.js: localhost auth bypass (skipped when no X-Forwarded-For / CF-Connecting-IP)
+
+## Completed (v0.6.3)
+- [x] WebServer.js: strip trailing blank lines from capture-pane output (fixes large terminals pushing content off screen)
+
+## Completed (v0.6.4)
+- [x] ui.html: SnippetControl — Off/1/2/3/4 toggle in dashboard header, saved to localStorage
+
+## Completed (v0.6.5)
+- [x] ui.html: SnippetControl changed to Off/2/4/6/8; invalid stored values fall back to 4
+- [x] WebServer.js: snippet capture window increased to 8 lines max
+- [x] ui.html: TelegramControl — On/Off toggle in dashboard header (hidden when unconfigured)
+- [x] WebServer.js: GET/POST /api/settings for telegramEnabled state
+- [x] bin/claude-pilot.js: `telegram on|off` REPL command
+- [x] Watcher.js: check telegram.enabled before every notifier.send
+- [x] Watcher.js: needs-response notifications debounced to once/min per session
+
+## Completed (v0.6.6)
+- [x] WebServer.js: POST /api/sessions/:name/resize → tmux resize-pane
+- [x] ui.html: ResizeObserver on terminal-body; measures char cell size, sends cols/rows on mount and window resize (80ms debounce)
+
+---
+
+## Backlog
+- [ ] smarter retry logic
+- [ ] usage statistics and session timeline
+- [ ] pluggable notification providers
