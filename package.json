@@ -19,6 +19,7 @@
     "lib/",
     "README.md",
     "CHANGELOG.md",
+    "DEVELOPMENT.md",
     "LICENSE"
   ],
   "scripts": {

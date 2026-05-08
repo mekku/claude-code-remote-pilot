@@ -264,14 +264,7 @@ When Claude shows a numbered choice menu, the options are detected from the term
 
 Clicking a button navigates to that option using arrow keys then Enter. The chosen button turns green with a `✓` and all buttons disable for 2.5 s — long enough to confirm it landed, short enough to retry if something went wrong.
 
-**Regex** handles the common case instantly. If it can't parse the output, a **"Parse options…"** button appears — clicking it calls a local **ollama** model for a more robust parse.
-
-To enable ollama fallback, set environment variables before starting the pilot:
-
-```bash
-export OLLAMA_URL=http://localhost:11434   # default
-export OLLAMA_MODEL=phi3:mini             # default; any small model works
-```
+**Regex** handles the common case instantly. If it can't parse the output, a **"Parse options…"** button appears — clicking it calls a local **ollama** model for a more robust parse. See `OLLAMA_URL` / `OLLAMA_MODEL` in [Environment variables](#environment-variables).
 
 ### Dashboard quick actions
 
@@ -291,17 +284,9 @@ Each session detail view has two tabs: **Terminal** and **Git**. The Git tab giv
 
 The Git tab polls for changes every 5 s and hides automatically when the working tree is clean or the directory is not a git repo.
 
-The three API routes it uses:
-
-```
-GET  /api/sessions/:name/git/status       — git status --porcelain
-GET  /api/sessions/:name/git/diff?file=   — staged, unstaged, and untracked diffs
-POST /api/sessions/:name/git/commit       — git add + git commit
-```
-
 ### Open in Finder
 
-The session detail header includes a **📂 Finder** button (macOS only). It calls `POST /api/sessions/:name/open-finder` and opens the session's working directory in Finder. The button shows `✓` briefly on success.
+The session detail header includes a **📂 Finder** button (macOS only). Click it to open the session's working directory in Finder. The button shows `✓` briefly on success.
 
 ### Telegram toggle
 
@@ -492,29 +477,25 @@ When using the tunnel feature, always set a password. Anyone with the URL can co
 - [x] Telegram notifications
 - [x] interactive REPL — spawn, watch, attach, kill
 - [x] multi-session support
-- [x] web dashboard — React SPA, SSE live updates, ANSI color rendering
+- [x] web dashboard with ANSI color rendering and live updates
 - [x] persistent session history with offline session display
-- [x] browser desktop notifications on status changes
+- [x] browser desktop notifications
 - [x] broadcast message to all sessions
 - [x] auto-discover untracked tmux sessions on startup
-- [x] cloudflared tunnel auto-setup with password protection
+- [x] cloudflared tunnel with password protection
 - [x] message queue per session with auto-feed mode
 - [x] session labels — emoji + color accent
 - [x] sort sessions by status or name
-- [x] terminal keyboard UX — command history, arrow/Tab/Ctrl key forwarding, click-to-focus
-- [x] auto-yes mode — per-session toggle to confirm Claude permission prompts automatically
-- [x] menu choice detection — numbered menus become CTA buttons; ollama fallback for tricky output
-- [x] dashboard quick-reply and snippet preview per session card (Off/2/4/6/8 line toggle)
-- [x] Telegram on/off toggle — dashboard + CLI, with needs-response debounce
-- [x] terminal resize sync — tmux pane tracks browser viewport via ResizeObserver
-- [x] Telegram notifications include tap-to-open dashboard URL (LAN → tunnel upgrade)
-- [x] mobile UX — section controls stack vertically, 44px CTA touch targets, scrollable footer keys
-- [x] mobile card width fix — `min-width:0` on grid items + `overflow-x:hidden` on content area
-- [x] status pill always visible — `flex-shrink:0` on pill, `flex:1;min-width:0` on name container
-- [x] terminal text copy — click-drag selects; focus only stolen when selection is empty
-- [x] Enter on empty sends bare Enter to tmux; Shift+Enter always sends Enter regardless of input
-- [x] git tab — full-width diff viewer and commit UI in the session detail view
-- [x] open in Finder — one-click button from session detail header (macOS)
+- [x] terminal keyboard UX — command history, key forwarding, text copy/selection
+- [x] auto-yes mode
+- [x] menu choice detection with ollama fallback
+- [x] dashboard quick-reply and snippet preview per card
+- [x] Telegram on/off toggle with needs-response debounce
+- [x] terminal resize sync
+- [x] tap-to-open URL in Telegram notifications
+- [x] mobile UX
+- [x] git diff & commit tab in session detail view
+- [x] open in Finder button (macOS)
 - [ ] smarter retry logic
 - [ ] usage statistics and session timeline
 - [ ] pluggable notification providers
@@ -524,6 +505,8 @@ When using the tunnel feature, always set a password. Anyone with the URL can co
 ## Contributing
 
 PRs, ideas, and weird experiments are welcome 😄
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for architecture overview, API reference, and how to run tests.
 
 ---
 
