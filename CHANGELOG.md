@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.5 — 2026-05-09
+
+### Changed
+- **Dashboard layout**: removed Uptime stat card; broadcast-all input moved to top of dashboard (below the stat row) so it's immediately accessible instead of buried at the bottom of the page.
+
+---
+
 ## 0.8.4 — 2026-05-09
 
 ### Changed

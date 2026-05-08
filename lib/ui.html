@@ -256,7 +256,7 @@
     .header{display:flex;}
     .content{padding:24px;}
     .session-cards{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
-    .stat-row{grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+    .stat-row{grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
     .detail-grid{grid-template-columns:1fr 280px;gap:20px;}
     .detail-header{flex-direction:row;align-items:flex-start;gap:16px;margin-bottom:20px;}
     .detail-title{font-size:20px;}
@@ -815,7 +815,6 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
   const sorted = sortSessions(sessions, sortBy);
   const running = sessions.filter(s => s.status === 'running');
   const active = sessions.filter(s => s.status !== 'offline');
-  const uptime = serverStatus ? formatUptime(serverStatus.startedAt) : '—';
   const port = serverStatus ? serverStatus.port : '—';
 
   return (
@@ -824,8 +823,9 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
         <div className="stat-card"><div className="stat-label">Running</div><div className="stat-value">{running.length}</div><div className="stat-sub">of {sessions.length} total</div></div>
         <div className="stat-card"><div className="stat-label">Active</div><div className="stat-value">{active.length}</div><div className="stat-sub">tmux sessions</div></div>
         <div className="stat-card"><div className="stat-label">Supervisor</div><div className="stat-value" style={{ color: 'var(--success)', fontSize: 15 }}>Online</div><div className="stat-sub">:{port}</div></div>
-        <div className="stat-card"><div className="stat-label">Uptime</div><div className="stat-value" style={{ fontSize: 16 }}>{uptime}</div><div className="stat-sub">since last start</div></div>
       </div>
+
+      <BroadcastBar activeSessions={active.length} />
 
       <div className="section-header">
         <h2 className="section-title">Sessions</h2>
@@ -866,7 +866,6 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
         </div>
       )}
 
-      <BroadcastBar activeSessions={active.length} />
     </div>
   );
 }
@@ -1582,7 +1581,7 @@ function BroadcastBar({ activeSessions }) {
   if (activeSessions === 0) return null;
 
   return (
-    <div className="card" style={{ padding: '14px 18px', marginTop: 24 }}>
+    <div className="card" style={{ padding: '14px 18px', marginBottom: 24 }}>
       <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)', marginBottom: 10 }}>
         Broadcast to all {activeSessions} active session{activeSessions !== 1 ? 's' : ''}
       </div>
