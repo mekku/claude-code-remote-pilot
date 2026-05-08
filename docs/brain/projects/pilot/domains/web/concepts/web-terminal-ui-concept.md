@@ -24,6 +24,7 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 - **Click-to-focus** — clicking anywhere on the terminal body focuses the hidden input so keystrokes are forwarded to tmux. Guard: only steals focus when `window.getSelection().toString()` is empty, so click-drag text selection is preserved.
 - **Resize sync** — on mount and resize, the component measures the rendered terminal viewport (using a hidden probe character) and calls `POST /api/sessions/:name/resize` to match the tmux pane dimensions to the browser window.
 - **Special keys** — Ctrl+C, Ctrl+D, Tab, Up/Down arrow, Ctrl+U, Ctrl+L are intercepted in the input `onKeyDown` handler and forwarded as tmux key sequences.
+- **Enter behaviour** — Enter with text sends the message and clears input. Enter with empty input sends a bare Enter to tmux (confirms prompts). Shift+Enter always sends a bare Enter to tmux regardless of input content (quick confirm without clearing a draft).
 
 ## Non-obvious detail
 
