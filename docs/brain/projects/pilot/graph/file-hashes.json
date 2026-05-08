@@ -1,5 +1,5 @@
 {
-  "lib/ui.html": "0cef0ac3bb3088e78919846193723c1118bba583c609069994c4a1e42dc47b04",
+  "lib/ui.html": "6124a18365e058a6737bd16c2d5365558215a22ddb4b9c0731fd3d26fc7c8e83",
   "bin/claude-pilot.js": "4d73b3b48aa482851b3959dcf680d44d02095cadcb1ddef547348bbe74be4725",
   "lib/SessionManager.js": "e0cb3a63aaf6fdb5ebff408a859c8a487df18961ad78fadd84d489ab7760272e",
   "lib/Watcher.js": "145020340b60f6ee29947bbe2fdd445dbd19a0e801e206d6465d657befa2781e",

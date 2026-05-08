@@ -8,7 +8,7 @@ confidence: source_supported
 source_files:
   - lib/ui.html
 last_reviewed: 2026-05-09
-version: 0.8.4
+version: 0.8.7
 tags:
   - type/concept
   - domain/web
@@ -28,7 +28,7 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 - **Resize sync** — on mount and resize, the component measures the rendered terminal viewport (using a hidden probe character) and calls `POST /api/sessions/:name/resize` to match the tmux pane dimensions to the browser window.
 - **Multi-line input** — the input element is a `<textarea>` (since v0.8.4), not an `<input>`. It auto-resizes via a `useEffect` that sets `el.style.height` to `Math.min(el.scrollHeight, 120)px` on every `msg` state change. Maximum visible height is 120 px (~5 lines); content beyond that scrolls inside the textarea.
 - **Special keys** — Ctrl+C, Ctrl+D, Tab, Up/Down arrow, Ctrl+U, Ctrl+L are intercepted in `handleKeyDown` and forwarded as tmux key sequences.
-- **Enter behaviour** — Ctrl+Enter / Cmd+Enter sends the message. Shift+Enter sends a bare Enter to tmux (quick confirm). Enter with empty input sends a bare Enter to tmux. Enter with text inserts a newline (natural textarea behaviour — not intercepted).
+- **Enter behaviour** — Enter sends the message (single or multi-line). Ctrl/Cmd+Enter inserts a newline at the cursor (manual `\n` splice into state + `requestAnimationFrame` cursor reposition). Shift+Enter sends a bare Enter to tmux (quick confirm). Enter with empty input sends a bare Enter to tmux.
 - **Send button** — a `.btn-key-send` button labelled "↵ Send" sits in `.terminal-input-row` next to the textarea. Disabled when `msg` is empty or `sending`. Primary send path for mobile users who have no Ctrl key.
 - **Footer layout** — `.terminal-footer` contains two children: `.terminal-input-row` (prompt char + textarea + Send button) and `.terminal-keys` (key shortcut buttons). On desktop both sit side-by-side (`flex-direction: row`, `align-items: flex-end`). On mobile (`max-width: 767px`) the footer switches to `flex-direction: column` so the input row is always fully visible above the scrollable key strip.
 - **Key button order** — `Esc` is at the far left of `.terminal-keys`, bare `↵` (send Enter to tmux) is at the far right. Navigation keys (↑ ↓ ⇥) and interrupt keys (^C ^D) sit between them, maximising tap-target separation between Esc and Enter.
