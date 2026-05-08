@@ -1,6 +1,6 @@
 # Tasks
 
-## Current version: 0.6.9 (published)
+## Current version: 0.7.5 (published)
 
 ---
 
@@ -83,6 +83,22 @@
 ## Completed (v0.6.9)
 - [x] ui.html: scroll lock — auto-scroll pauses when user scrolls up (>60px from bottom), resumes on scroll-to-bottom
 - [x] userScrolledRef resets on session change
+
+## Completed (v0.7.0–v0.7.4)
+- [x] ui.html: mobile card width fix — min-width:0 on .session-card + overflow-x:hidden on .content
+- [x] ui.html: scroll bounce fix — auto-scroll only within 60px of bottom (userScrolledRef)
+- [x] ui.html: CTA hit feedback — green ✓, all disabled 2.5s, then retry
+- [x] ui.html: blink animation on needs-response status pill + Web Audio beep alert (sound toggle)
+- [x] ui.html: status pill always visible — flex-shrink:0 + flex:1;min-width:0 on name container
+- [x] Watcher.js: Telegram URL fix — LAN IP only when bindLan, tunnel URL overrides when ready
+- [x] bin/claude-pilot.js: LAN binding + Telegram tap-to-open URL
+
+## Completed (v0.7.5)
+- [x] config.js: saveSetupPrefs / getSetupPrefs
+- [x] bin/claude-pilot.js: yesNo() helper — Y/n vs y/N based on last choice; prefs saved after setup
+- [x] bin/claude-pilot.js: REPL hint updated to include "exit to quit"
+- [x] ui.html: Buy Me a Coffee button script
+- [x] README.md: Buy Me a Coffee badge
 
 ---
 

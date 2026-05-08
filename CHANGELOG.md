@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.5 — 2026-05-08
+
+### Added
+- **Remember last setup choices**: web dashboard, LAN binding, and tunnel preferences are saved to `~/.claude-remote-pilot.json` and used as defaults on the next run — the `(Y/n)` / `(y/N)` prompt reflects what you chose last time; pressing Enter selects it.
+- **Exit hint in REPL**: startup message now shows `Type help for commands · exit to quit.`
+- **Buy Me a Coffee button**: added to the web dashboard and README.
+
+---
+
 ## 0.7.4 — 2026-05-08
 
 ### Fixed

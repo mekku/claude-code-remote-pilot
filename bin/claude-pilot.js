@@ -77,6 +77,13 @@ function questionRaw(rl, q) {
   return new Promise(r => rl.question(q, a => r(a.trim())));
 }
 
+function yesNo(rl, q, defaultYes) {
+  return question(rl, `${q} (${defaultYes ? 'Y/n' : 'y/N'}) `).then(a => {
+    if (a === '') return defaultYes;
+    return a === 'y' || a === 'yes';
+  });
+}
+
 // ─── telegram setup ───────────────────────────────────────────────────────────
 
 async function setupTelegram(rl) {
@@ -445,17 +452,17 @@ ${HELP}`);
     console.log(`    tmux attach -t ${session.name}\n`);
   }
 
-  const openWeb = await question(setupRl, 'Open web dashboard? (Y/n) ');
-  if (isYes(openWeb)) {
+  const prefs = config.getSetupPrefs();
+  const openWeb = await yesNo(setupRl, 'Open web dashboard?', prefs.web !== false);
+  let bindLan = false;
+  let useTunnel = false;
+  if (openWeb) {
     let webPassword = null;
-    let useTunnel = false;
 
-    const lanAns = await question(setupRl, 'Expose on LAN (all interfaces)? (y/N) ');
-    const bindLan = lanAns === 'y' || lanAns === 'yes';
+    bindLan = await yesNo(setupRl, 'Expose on LAN (all interfaces)?', !!prefs.lan);
     const webHost = bindLan ? '0.0.0.0' : '127.0.0.1';
 
-    const tunnelAns = await question(setupRl, 'Expose publicly via cloudflared tunnel? (y/N) ');
-    useTunnel = tunnelAns === 'y' || tunnelAns === 'yes';
+    useTunnel = await yesNo(setupRl, 'Expose publicly via cloudflared tunnel?', !!prefs.tunnel);
 
     if (useTunnel && !has('cloudflared')) {
       console.log(`\n  cloudflared not found. Install it:\n    ${cloudflaredInstallCmd()}\n  Continuing without tunnel.\n`);
@@ -505,9 +512,11 @@ ${HELP}`);
     console.log('');
   }
 
+  config.saveSetupPrefs({ web: openWeb, lan: bindLan, tunnel: useTunnel });
+
   setupRl.close();
 
-  console.log('  Type help for commands.\n');
+  console.log('  Type help for commands · exit to quit.\n');
   const replRl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

@@ -5,6 +5,8 @@
 [![npm total downloads](https://img.shields.io/npm/dt/claude-code-remote-pilot?style=flat-square&color=blueviolet)](https://www.npmjs.com/package/claude-code-remote-pilot)
 [![license](https://img.shields.io/npm/l/claude-code-remote-pilot?style=flat-square&color=green)](./LICENSE)
 
+<a href="https://www.buymeacoffee.com/mekkunks"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="30"></a>
+
 A self-hosted supervisor and remote dashboard for running multiple Claude Code sessions — monitor, control, and queue work from anywhere.
 
 Start sessions on your machine, expose the dashboard through a secure tunnel, and manage everything from your phone while you're away.
