@@ -1,6 +1,6 @@
 # Tasks
 
-## Current version: 0.6.7 (published)
+## Current version: 0.6.9 (published)
 
 ---
 
@@ -73,6 +73,16 @@
 - [x] ui.html: CTA button hit feedback — clicked button turns green + ✓, all disabled 2.5s then reset for retry
 - [x] Applied to both SessionDetailScreen CTA strip and SessionCard dashboard buttons
 - [x] ctaHit state cleared when session leaves needs-response status
+
+## Completed (v0.6.8)
+- [x] Watcher.js: append telegram.dashboardUrl to needs-response and limit-hit notifications
+- [x] bin/claude-pilot.js: set telegram.dashboardUrl to LAN IP on start; upgrade to tunnel URL when ready
+- [x] ui.html: mobile — section-header controls stack vertically on narrow screens
+- [x] ui.html: mobile — CTA buttons 44px min-height, terminal footer keys 36px + horizontal scroll
+
+## Completed (v0.6.9)
+- [x] ui.html: scroll lock — auto-scroll pauses when user scrolls up (>60px from bottom), resumes on scroll-to-bottom
+- [x] userScrolledRef resets on session change
 
 ---
 
