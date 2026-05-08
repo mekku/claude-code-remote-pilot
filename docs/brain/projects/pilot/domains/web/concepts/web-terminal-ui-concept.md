@@ -8,6 +8,7 @@ confidence: source_supported
 source_files:
   - lib/ui.html
 last_reviewed: 2026-05-08
+version: 0.8.2
 tags:
   - type/concept
   - domain/web
@@ -22,6 +23,7 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 
 - **ANSI rendering** — `ansiToHtml()` converts colour/formatting escapes to `<span>` elements with inline styles; falls back to stripped plain text on error.
 - **Click-to-focus** — clicking anywhere on the terminal body focuses the hidden input so keystrokes are forwarded to tmux. Guard: only steals focus when `window.getSelection().toString()` is empty, so click-drag text selection is preserved.
+- **Tab-switching layout** — `SessionDetailScreen` has an `activeTab` state (`'terminal'` | `'git'`) and a `.tab-bar` with two `.tab-btn` tabs. When `activeTab === 'terminal'` the standard `detail-grid` (terminal + sidebar with `QueuePanel`) is shown; when `activeTab === 'git'` the `GitPanel` is rendered full-width. `activeTab` resets to `'terminal'` whenever the selected session changes.
 - **Queue sidebar** — `QueuePanel` is rendered inside `.detail-sidebar` (right column of the detail grid), beneath Session Info. The sidebar is `flex-direction:column; overflow-y:auto` so a long queue list scrolls without overflowing the layout.
 - **Resize sync** — on mount and resize, the component measures the rendered terminal viewport (using a hidden probe character) and calls `POST /api/sessions/:name/resize` to match the tmux pane dimensions to the browser window.
 - **Special keys** — Ctrl+C, Ctrl+D, Tab, Up/Down arrow, Ctrl+U, Ctrl+L are intercepted in the input `onKeyDown` handler and forwarded as tmux key sequences.

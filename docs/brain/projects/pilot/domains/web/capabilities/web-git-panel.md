@@ -9,6 +9,7 @@ source_files:
   - lib/WebServer.js
   - lib/ui.html
 last_reviewed: 2026-05-08
+version: 0.8.2
 tags:
   - type/capability
   - domain/web
@@ -27,11 +28,20 @@ Exposes the session workspace's git state to the dashboard, letting users review
 
 ## Frontend (GitPanel component)
 
-- Auto-polls status every 5 s; hides entirely when no changes or not a git repo.
-- File list with `~` (modified), `+` (untracked/added), `−` (deleted) icons and checkboxes.
-- Click a filename → coloured unified diff expands inline (max 280 px, scrollable).
-- Commit message input + **↑ Commit all** / **↑ Commit (N files)** button.
-- Lives in [[web-serve-dashboard|dashboard]] sidebar below [[web-session-api|Queue Panel]].
+`GitPanel` has two render modes controlled by the `fullWidth` prop.
+
+### Full-width mode (`fullWidth=true`) — active since v0.8.2
+
+Activated from the **Git tab** in `SessionDetailScreen`. Renders:
+- **Commit bar** at top — message input + "↑ Commit all" / "↑ Commit (N files)" button + error message.
+- **Two-column body** via CSS grid `260px 1fr`, height `calc(100vh - 240px)`:
+  - **Left column** — file list with checkboxes and `~` / `+` / `−` status icons. "Select all / Deselect all" header. Clicking a row selects it and loads diff.
+  - **Right column** — diff viewer (dark background `oklch(13% 0.012 50)`, `overflow: auto`, coloured diff lines at `fontSize: 12`, `whiteSpace: pre`, `minWidth: max-content`).
+- Empty states: "← select a file to view diff", "Working tree clean.", "Not a git repository."
+
+### Compact mode (`fullWidth=false`)
+
+Legacy sidebar widget — auto-polls every 5 s, hides when no changes; inline diff expands below filename (max 280 px). Used as fallback if ever embedded in a sidebar again.
 
 ## Related
 

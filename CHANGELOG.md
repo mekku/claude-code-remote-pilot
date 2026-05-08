@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.2 — 2026-05-08
+
+### Changed
+- **Git panel → tab-switching interface**: replaced the small sidebar git widget with a full-screen tab layout. The session detail view now has a **Terminal** tab (original terminal + queue sidebar) and a **Git** tab (full-width two-column layout). The Git tab shows a file list with checkboxes on the left and a scrollable colour-coded diff viewer on the right, with a commit bar at the top. Tabs reset to Terminal whenever the selected session changes.
+
+---
+
 ## 0.8.1 — 2026-05-08
 
 ### Added
