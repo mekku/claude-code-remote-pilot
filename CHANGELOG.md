@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.0 — 2026-05-08
+
+### Fixed
+- **Terminal text selection**: clicking on the terminal body no longer clears an active text selection — the input only steals focus when no text is highlighted, so copy-paste now works.
+
+### Added
+- **Enter key improvements**: pressing Enter on an empty input now forwards a bare Enter keystroke to the tmux pane (confirm prompts without typing anything). Shift+Enter always sends a bare Enter regardless of input content — useful as a quick "confirm/done" without clearing a draft message.
+- **Queue in sidebar**: the message queue panel is now embedded in the right-hand sidebar alongside Session Info, keeping the terminal view uncluttered. Sidebar is scrollable when the queue grows long.
+
+---
+
 ## 0.7.9 — 2026-05-08
 
 ### Added
