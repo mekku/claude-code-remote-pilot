@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1 — 2026-05-08
+
+### Fixed
+- **Telegram notification URL was 127.0.0.1**: LAN IP is now always detected regardless of whether "Expose on LAN" was chosen. Telegram notifications are remote by nature so 127.0.0.1 is never useful there. The LAN IP is used as the notification URL; tunnel URL still overrides it once cloudflared is ready.
+
+---
+
 ## 0.7.0 — 2026-05-08
 
 ### Fixed

@@ -477,11 +477,12 @@ ${HELP}`);
     manager._webServer = webServer;
     webServer.start();
     const localUrl = 'http://127.0.0.1:3742';
-    const lanIp = bindLan ? getLanIp() : null;
-    const lanNote = lanIp ? `  ${C.dim}(LAN: http://${lanIp}:3742)${C.reset}` : '';
+    const lanIp = getLanIp(); // always detect, used for console note and telegram
+    const lanNote = (bindLan && lanIp) ? `  ${C.dim}(LAN: http://${lanIp}:3742)${C.reset}` : '';
     console.log(`  ✓ Web dashboard at ${localUrl}${lanNote}`);
 
-    // Set dashboard URL on the shared telegram object so Watcher can append it to notifications
+    // Telegram notifications are always remote, so prefer LAN IP over 127.0.0.1.
+    // Tunnel URL will override this once cloudflared is ready.
     telegram.dashboardUrl = lanIp ? `http://${lanIp}:3742` : localUrl;
 
     if (useTunnel) {
