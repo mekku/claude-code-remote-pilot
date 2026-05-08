@@ -481,9 +481,13 @@ ${HELP}`);
     const lanNote = lanIp ? `  ${C.dim}(LAN: http://${lanIp}:3742)${C.reset}` : '';
     console.log(`  ✓ Web dashboard at ${localUrl}${lanNote}`);
 
+    // Set dashboard URL on the shared telegram object so Watcher can append it to notifications
+    telegram.dashboardUrl = lanIp ? `http://${lanIp}:3742` : localUrl;
+
     if (useTunnel) {
       console.log('  Starting cloudflared tunnel...');
       webServer.startTunnel().then(publicUrl => {
+        telegram.dashboardUrl = publicUrl; // upgrade to public URL once tunnel is ready
         console.log(`  ✓ Tunnel ready: ${publicUrl}`);
         console.log('    Note: first visit may show a Cloudflare warning — click "Proceed" to open the dashboard.');
         if (!webPassword) console.log('  ⚠  Reminder: no password set. Restart with a password for security.');
