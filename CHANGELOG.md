@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.2 — 2026-05-08
+
+### Added
+- **Blinking status pill**: the `needs input` pill now pulses with a 1s CSS animation so it catches your eye at a glance.
+- **Sound alert**: a short 880 Hz beep plays via Web Audio when any session transitions to `needs-response`. Toggle with the **Sound: On / Off** control in the dashboard header — preference saved to localStorage (on by default).
+
+---
+
 ## 0.7.1 — 2026-05-08
 
 ### Fixed

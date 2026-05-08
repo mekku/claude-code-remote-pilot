@@ -51,6 +51,7 @@ It's a practical helper tool for people who run Claude Code for extended periods
 - Full-color terminal output rendered in the browser (24-bit ANSI, bold, dim, italic)
 - Terminal input behaves like a real terminal — command history (↑/↓), Tab forwarding, Ctrl+C/D/U/L, click output to focus
 - **Scroll lock** — auto-scroll pauses when you scroll up to read; resumes automatically when you scroll back to the bottom
+- **Blinking status pill** — the "needs input" pill pulses to draw attention; a short sound alert fires on transition (toggleable in the dashboard header)
 - Send messages or special keys; broadcast to all sessions at once
 - **Auto-yes mode** — toggle per session to automatically confirm Claude's permission prompts
 - **Menu choice detection** — when Claude shows a numbered menu (1 / 2 / 3), clickable buttons appear automatically; optional ollama fallback for non-standard output

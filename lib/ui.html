@@ -126,6 +126,8 @@
   .status-error .status-dot{background:var(--error);}
   .status-warn{background:var(--warning-soft);color:var(--warning);}
   .status-warn .status-dot{background:var(--warning);}
+  @keyframes ccp-blink{0%,100%{opacity:1}50%{opacity:0.25}}
+  .status-pill.blink{animation:ccp-blink 1s ease-in-out infinite;}
 
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);}
 
@@ -527,7 +529,7 @@ function LoginScreen({ onLogin }) {
 /* --- Status Pill --- */
 function StatusPill({ status }) {
   return (
-    <span className={`status-pill ${statusCls(status)}`} style={status === 'offline' ? { opacity: 0.55 } : {}}>
+    <span className={`status-pill ${statusCls(status)}${status === 'needs-response' ? ' blink' : ''}`} style={status === 'offline' ? { opacity: 0.55 } : {}}>
       <span className="status-dot" />
       {statusLabel(status)}
     </span>
@@ -602,6 +604,39 @@ function SnippetControl({ snippetLines, onSnippetChange }) {
           background: snippetLines === val ? 'var(--accent-soft)' : 'var(--bg)',
           color: snippetLines === val ? 'var(--accent)' : 'var(--muted)',
           fontWeight: snippetLines === val ? 600 : 400,
+        }}>{label}</button>
+      ))}
+    </div>
+  );
+}
+
+/* --- Sound alert helper --- */
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine'; osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.35, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+    osc.onended = () => ctx.close();
+  } catch {}
+}
+
+/* --- Sound control --- */
+function SoundControl({ soundOn, onToggle }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{ fontSize: 11, color: 'var(--muted)', marginRight: 2 }}>Sound:</span>
+      {[{ val: true, label: 'On' }, { val: false, label: 'Off' }].map(({ val, label }) => (
+        <button key={label} onClick={() => onToggle(val)} style={{
+          fontSize: 11, padding: '3px 7px', borderRadius: 4, cursor: 'pointer',
+          border: '1px solid var(--border)',
+          background: soundOn === val ? 'var(--accent-soft)' : 'var(--bg)',
+          color: soundOn === val ? 'var(--accent)' : 'var(--muted)',
+          fontWeight: soundOn === val ? 600 : 400,
         }}>{label}</button>
       ))}
     </div>
@@ -743,7 +778,7 @@ function SessionCard({ session, onNavigate, snippetLines }) {
 }
 
 /* --- Dashboard --- */
-function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy, onSortChange, snippetLines, onSnippetChange, telegramEnabled, hasTelegram, onTelegramToggle }) {
+function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy, onSortChange, snippetLines, onSnippetChange, telegramEnabled, hasTelegram, onTelegramToggle, soundOn, onSoundToggle }) {
   const sorted = sortSessions(sessions, sortBy);
   const running = sessions.filter(s => s.status === 'running');
   const active = sessions.filter(s => s.status !== 'offline');
@@ -762,6 +797,7 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
       <div className="section-header">
         <h2 className="section-title">Sessions</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <SoundControl soundOn={soundOn} onToggle={onSoundToggle} />
           <TelegramControl telegramEnabled={telegramEnabled} hasTelegram={hasTelegram} onToggle={onTelegramToggle} />
           <SnippetControl snippetLines={snippetLines} onSnippetChange={onSnippetChange} />
           <SortControl sortBy={sortBy} onSortChange={onSortChange} />
@@ -1636,6 +1672,9 @@ function App() {
     const v = parseInt(storage.getItem('ccp-snippet-lines') ?? '4', 10);
     return [0, 2, 4, 6, 8].includes(v) ? v : 4;
   });
+  const [soundOn, setSoundOnState] = useState(storage.getItem('ccp-sound') !== 'off');
+  const soundOnRef = useRef(soundOn);
+  const setSoundOn = (v) => { setSoundOnState(v); soundOnRef.current = v; storage.setItem('ccp-sound', v ? 'on' : 'off'); };
   const setSnippetLines = (v) => { setSnippetLinesState(v); storage.setItem('ccp-snippet-lines', String(v)); };
   const [telegramEnabled, setTelegramEnabled] = useState(true);
   const [hasTelegram, setHasTelegram] = useState(false);
@@ -1687,12 +1726,14 @@ function App() {
       for (const s of incoming) {
         if (prev[s.name] && prev[s.name] !== s.status) {
           newEntries.push({ time: now, name: s.name, from: prev[s.name], to: s.status });
-          if ((s.status === 'needs-response' || s.status === 'limit') &&
-              'Notification' in window && Notification.permission === 'granted') {
-            new Notification(`Claude Pilot — ${s.name}`, {
-              body: s.status === 'needs-response' ? 'Claude needs your input' : 'Usage limit hit — will auto-resume',
-              tag: `ccp-${s.name}-${s.status}`,
-            });
+          if (s.status === 'needs-response' || s.status === 'limit') {
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification(`Claude Pilot — ${s.name}`, {
+                body: s.status === 'needs-response' ? 'Claude needs your input' : 'Usage limit hit — will auto-resume',
+                tag: `ccp-${s.name}-${s.status}`,
+              });
+            }
+            if (soundOnRef.current && s.status === 'needs-response') playBeep();
           }
         }
         prev[s.name] = s.status;
@@ -1759,7 +1800,7 @@ function App() {
 
   const renderScreen = () => {
     switch (screen) {
-      case 'dashboard': return <DashboardScreen onNavigate={navigate} sessions={sessions} activity={activity} serverStatus={serverStatus} sortBy={sortBy} onSortChange={setSortBy} snippetLines={snippetLines} onSnippetChange={setSnippetLines} telegramEnabled={telegramEnabled} hasTelegram={hasTelegram} onTelegramToggle={handleTelegramToggle} />;
+      case 'dashboard': return <DashboardScreen onNavigate={navigate} sessions={sessions} activity={activity} serverStatus={serverStatus} sortBy={sortBy} onSortChange={setSortBy} snippetLines={snippetLines} onSnippetChange={setSnippetLines} telegramEnabled={telegramEnabled} hasTelegram={hasTelegram} onTelegramToggle={handleTelegramToggle} soundOn={soundOn} onSoundToggle={setSoundOn} />;
       case 'sessions':  return <SessionsScreen sessions={sessions} onNavigate={navigate} sortBy={sortBy} onSortChange={setSortBy} />;
       case 'create':    return <CreateSessionScreen onBack={() => navigate('dashboard')} onCreated={s => navigate('detail', s)} />;
       case 'detail':    return <SessionDetailScreen session={selectedSession} onBack={() => navigate('dashboard')} onKilled={() => navigate('sessions')} onRespawned={(respawned) => {
