@@ -37,6 +37,12 @@
     "web-token-auth-concept",
     "web-token-no-rotation-risk"
   ],
+  "lib/ui.html": [
+    "web",
+    "web-serve-dashboard",
+    "web-request-flow",
+    "web-terminal-ui-concept"
+  ],
   "lib/config.js": [
     "core",
     "core-load-config",

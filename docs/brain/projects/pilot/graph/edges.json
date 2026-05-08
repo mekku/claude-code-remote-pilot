@@ -55,6 +55,7 @@
   { "from": "session-resume", "to": "session-auto-resume-concept", "type": "part_of_flow" },
   { "from": "cli-setup-prefs-concept", "to": "core-save-config", "type": "calls" },
 
+  { "from": "web-serve-dashboard", "to": "web-terminal-ui-concept", "type": "part_of_flow" },
   { "from": "web-token-no-rotation-risk", "to": "web-token-auth", "type": "has_caveat" },
   { "from": "config-concurrent-write-risk", "to": "core-save-config", "type": "has_caveat" },
   { "from": "resume-window-killed-risk", "to": "session-resume", "type": "has_caveat" }

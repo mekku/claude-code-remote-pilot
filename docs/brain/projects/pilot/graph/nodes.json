@@ -24,7 +24,7 @@
     "summary": "Optional HTTP dashboard and JSON API for remote session monitoring",
     "status": "active",
     "confidence": "source_supported",
-    "source_files": ["lib/WebServer.js"]
+    "source_files": ["lib/WebServer.js", "lib/ui.html"]
   },
   {
     "id": "core",
@@ -102,10 +102,10 @@
     "id": "web-serve-dashboard",
     "type": "capability",
     "name": "Serve Dashboard",
-    "summary": "Serve embedded HTML dashboard with session status and version info",
+    "summary": "Serve embedded HTML dashboard with session status and version info; UI rendered from lib/ui.html",
     "status": "active",
     "confidence": "source_supported",
-    "source_files": ["lib/WebServer.js"]
+    "source_files": ["lib/WebServer.js", "lib/ui.html"]
   },
   {
     "id": "web-session-api",
@@ -177,7 +177,7 @@
     "summary": "Token check → route → read config → response",
     "status": "active",
     "confidence": "source_supported",
-    "source_files": ["lib/WebServer.js", "lib/config.js"]
+    "source_files": ["lib/WebServer.js", "lib/config.js", "lib/ui.html"]
   },
   {
     "id": "session-tmux-concept",
@@ -232,6 +232,15 @@
     "status": "active",
     "confidence": "source_supported",
     "source_files": ["bin/claude-pilot.js"]
+  },
+  {
+    "id": "web-terminal-ui-concept",
+    "type": "concept",
+    "name": "Web Terminal UI Concept",
+    "summary": "React SPA in lib/ui.html renders ANSI output, handles click-to-focus, and guards text selection before stealing input focus",
+    "status": "active",
+    "confidence": "source_supported",
+    "source_files": ["lib/ui.html"]
   },
   {
     "id": "web-token-no-rotation-risk",
