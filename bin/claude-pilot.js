@@ -362,6 +362,7 @@ const HELP = `
   attach <name>                              Open tmux session in this terminal
   kill <name>                                Stop a session
   resume [message]                           Show or set the message sent after a limit resets
+  telegram on|off                            Enable or disable Telegram notifications
   help                                       Show this help
   exit                                       Quit pilot  (asks whether to kill sessions)
 `;
@@ -623,6 +624,22 @@ ${HELP}`);
             console.log(`  ✓ Resume message saved: "${resumeMsg}"`);
           } else {
             console.log(`  Current resume message: "${manager.resumeCommand || '(default)'}"`);
+          }
+          break;
+        }
+        case 'telegram': {
+          const sub = positional[0];
+          if (sub === 'on') {
+            telegram.enabled = true;
+            console.log('  ✓ Telegram notifications enabled.');
+          } else if (sub === 'off') {
+            telegram.enabled = false;
+            console.log('  ✓ Telegram notifications disabled.');
+          } else {
+            const state = telegram.enabled !== false ? 'on' : 'off';
+            const configured = telegram.token ? 'configured' : 'not configured';
+            console.log(`  Telegram: ${state}  (${configured})`);
+            console.log('  Usage: telegram on | telegram off');
           }
           break;
         }

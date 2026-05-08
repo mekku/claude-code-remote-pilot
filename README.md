@@ -68,6 +68,8 @@ It's a practical helper tool for people who run Claude Code for extended periods
 
 **Notifications**
 - Telegram alerts for limit hits, status changes, and tunnel URL on startup
+- **Telegram on/off toggle** — mute without removing credentials, from the dashboard or CLI (`telegram on|off`)
+- Needs-response alerts debounced to at most once per minute per session
 
 **Organization**
 - **Session labels** — emoji prefix and color accent per session, saved to config
@@ -190,6 +192,7 @@ sudo pacman -S tmux
 | `web [port] [host] [password] [--tunnel]` | Start the web dashboard. Defaults to `127.0.0.1:3742`. Add `--tunnel` to start a cloudflared public tunnel automatically. |
 | `attach <name>` | Open a tmux session in the current terminal. |
 | `kill <name>` | Stop a session. |
+| `telegram on\|off` | Enable or disable Telegram notifications without removing credentials. |
 | `help` | Show command reference. |
 | `exit` | Quit the pilot. Sessions keep running in tmux. |
 
@@ -262,9 +265,15 @@ export OLLAMA_MODEL=phi3:mini             # default; any small model works
 
 Each active session card on the dashboard now shows:
 
-- **Snippet** — last 4 meaningful terminal lines (separator and blank lines filtered out), updated every 3 s
+- **Snippet** — last N meaningful terminal lines (separator and blank lines filtered out), updated every 3 s. Use the **Snippet: Off / 2 / 4 / 6 / 8** control in the dashboard header to set how many lines to show, or turn them off. Choice is saved across reloads.
 - **CTA buttons** — when `needs-response` and a numbered menu is detected, the choices appear directly on the card so you can respond to multiple agents at once without opening each one
 - **Quick-reply input** — type a message and press Enter or `→` to send without leaving the dashboard
+
+### Telegram toggle
+
+The dashboard header shows a **Telegram: On / Off** toggle when a bot token is configured. Use it to mute notifications without removing your credentials — handy when you're actively watching the dashboard and don't want your phone buzzing. From the CLI: `telegram on` / `telegram off`.
+
+Needs-response notifications are debounced — at most one per session per minute, so a session that briefly flickers between states won't spam you.
 
 ### Session labels
 
@@ -461,7 +470,8 @@ When using the tunnel feature, always set a password. Anyone with the URL can co
 - [x] terminal keyboard UX — command history, arrow/Tab/Ctrl key forwarding, click-to-focus
 - [x] auto-yes mode — per-session toggle to confirm Claude permission prompts automatically
 - [x] menu choice detection — numbered menus become CTA buttons; ollama fallback for tricky output
-- [x] dashboard quick-reply and snippet preview per session card
+- [x] dashboard quick-reply and snippet preview per session card (Off/2/4/6/8 line toggle)
+- [x] Telegram on/off toggle — dashboard + CLI, with needs-response debounce
 - [ ] smarter retry logic
 - [ ] usage statistics and session timeline
 - [ ] pluggable notification providers

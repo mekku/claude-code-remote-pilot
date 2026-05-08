@@ -579,7 +579,7 @@ function SortControl({ sortBy, onSortChange }) {
 
 /* --- Snippet lines control --- */
 function SnippetControl({ snippetLines, onSnippetChange }) {
-  const opts = [{ val: 0, label: 'Off' }, { val: 1, label: '1' }, { val: 2, label: '2' }, { val: 3, label: '3' }, { val: 4, label: '4' }];
+  const opts = [{ val: 0, label: 'Off' }, { val: 2, label: '2' }, { val: 4, label: '4' }, { val: 6, label: '6' }, { val: 8, label: '8' }];
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <span style={{ fontSize: 11, color: 'var(--muted)', marginRight: 2 }}>Snippet:</span>
@@ -590,6 +590,25 @@ function SnippetControl({ snippetLines, onSnippetChange }) {
           background: snippetLines === val ? 'var(--accent-soft)' : 'var(--bg)',
           color: snippetLines === val ? 'var(--accent)' : 'var(--muted)',
           fontWeight: snippetLines === val ? 600 : 400,
+        }}>{label}</button>
+      ))}
+    </div>
+  );
+}
+
+/* --- Telegram toggle control --- */
+function TelegramControl({ telegramEnabled, hasTelegram, onToggle }) {
+  if (!hasTelegram) return null;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{ fontSize: 11, color: 'var(--muted)', marginRight: 2 }}>Telegram:</span>
+      {[{ val: true, label: 'On' }, { val: false, label: 'Off' }].map(({ val, label }) => (
+        <button key={label} onClick={() => onToggle(val)} style={{
+          fontSize: 11, padding: '3px 7px', borderRadius: 4, cursor: 'pointer',
+          border: '1px solid var(--border)',
+          background: telegramEnabled === val ? (val ? 'var(--success-soft)' : 'var(--accent-soft)') : 'var(--bg)',
+          color: telegramEnabled === val ? (val ? 'var(--success)' : 'var(--accent)') : 'var(--muted)',
+          fontWeight: telegramEnabled === val ? 600 : 400,
         }}>{label}</button>
       ))}
     </div>
@@ -701,7 +720,7 @@ function SessionCard({ session, onNavigate, snippetLines }) {
 }
 
 /* --- Dashboard --- */
-function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy, onSortChange, snippetLines, onSnippetChange }) {
+function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy, onSortChange, snippetLines, onSnippetChange, telegramEnabled, hasTelegram, onTelegramToggle }) {
   const sorted = sortSessions(sessions, sortBy);
   const running = sessions.filter(s => s.status === 'running');
   const active = sessions.filter(s => s.status !== 'offline');
@@ -719,7 +738,8 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
 
       <div className="section-header">
         <h2 className="section-title">Sessions</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <TelegramControl telegramEnabled={telegramEnabled} hasTelegram={hasTelegram} onToggle={onTelegramToggle} />
           <SnippetControl snippetLines={snippetLines} onSnippetChange={onSnippetChange} />
           <SortControl sortBy={sortBy} onSortChange={onSortChange} />
           <button className="btn btn-sm" onClick={() => onNavigate('create')}>{Icons.plus} New</button>
@@ -1522,8 +1542,13 @@ function App() {
   const [dark, setDark] = useState(savedTheme === 'dark');
   const [sortBy, setSortByState] = useState(storage.getItem('ccp-sort') || 'status');
   const setSortBy = (v) => { setSortByState(v); storage.setItem('ccp-sort', v); };
-  const [snippetLines, setSnippetLinesState] = useState(parseInt(storage.getItem('ccp-snippet-lines') ?? '4', 10));
+  const [snippetLines, setSnippetLinesState] = useState(() => {
+    const v = parseInt(storage.getItem('ccp-snippet-lines') ?? '4', 10);
+    return [0, 2, 4, 6, 8].includes(v) ? v : 4;
+  });
   const setSnippetLines = (v) => { setSnippetLinesState(v); storage.setItem('ccp-snippet-lines', String(v)); };
+  const [telegramEnabled, setTelegramEnabled] = useState(true);
+  const [hasTelegram, setHasTelegram] = useState(false);
   const [screen, setScreen] = useState('dashboard');
   const [selectedSession, setSelectedSession] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -1596,6 +1621,10 @@ function App() {
       .then(r => r.json())
       .then(data => { setServerStatus(data); setNeedsLogin(false); connectSSE(); })
       .catch(e => { if (e.message !== 'Unauthorized') connectSSE(); });
+    apiFetch('/api/settings')
+      .then(r => r.json())
+      .then(d => { setTelegramEnabled(d.telegramEnabled); setHasTelegram(d.hasTelegram); })
+      .catch(() => {});
     return () => { if (esRef.current) esRef.current.close(); };
   }, []);
 
@@ -1620,6 +1649,14 @@ function App() {
     connectSSE();
   }, [connectSSE]);
 
+  const handleTelegramToggle = useCallback((enabled) => {
+    setTelegramEnabled(enabled);
+    apiFetch('/api/settings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telegramEnabled: enabled }),
+    }).catch(() => {});
+  }, []);
+
   const navigate = useCallback((target, session) => {
     setScreen(target);
     if (session) setSelectedSession(session);
@@ -1632,7 +1669,7 @@ function App() {
 
   const renderScreen = () => {
     switch (screen) {
-      case 'dashboard': return <DashboardScreen onNavigate={navigate} sessions={sessions} activity={activity} serverStatus={serverStatus} sortBy={sortBy} onSortChange={setSortBy} snippetLines={snippetLines} onSnippetChange={setSnippetLines} />;
+      case 'dashboard': return <DashboardScreen onNavigate={navigate} sessions={sessions} activity={activity} serverStatus={serverStatus} sortBy={sortBy} onSortChange={setSortBy} snippetLines={snippetLines} onSnippetChange={setSnippetLines} telegramEnabled={telegramEnabled} hasTelegram={hasTelegram} onTelegramToggle={handleTelegramToggle} />;
       case 'sessions':  return <SessionsScreen sessions={sessions} onNavigate={navigate} sortBy={sortBy} onSortChange={setSortBy} />;
       case 'create':    return <CreateSessionScreen onBack={() => navigate('dashboard')} onCreated={s => navigate('detail', s)} />;
       case 'detail':    return <SessionDetailScreen session={selectedSession} onBack={() => navigate('dashboard')} onKilled={() => navigate('sessions')} onRespawned={(respawned) => {

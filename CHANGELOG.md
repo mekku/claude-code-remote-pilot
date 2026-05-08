@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.5 — 2026-05-08
+
+### Added
+- **Telegram on/off toggle**: mute all Telegram notifications without removing your credentials. Toggle from the dashboard header (shows only when a bot token is configured) or via CLI: `telegram on` / `telegram off`.
+- **Telegram needs-response debounce**: notifications for "needs your response" are rate-limited to at most once per minute per session, preventing spam when a session rapidly re-enters that state.
+- **Snippet lines Off/2/4/6/8**: dashboard snippet control now uses even steps matching the new 8-line server cap. Stored values outside the valid set fall back to 4.
+
+### Changed
+- Snippet capture window increased from 4 to 8 lines max (server sends up to 8, client controls how many to display).
+
+---
+
 ## 0.6.4 — 2026-05-08
 
 ### Added
