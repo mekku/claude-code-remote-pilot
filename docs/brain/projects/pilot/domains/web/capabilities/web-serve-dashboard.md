@@ -7,7 +7,7 @@ status: active
 confidence: source_supported
 source_files:
   - lib/WebServer.js
-last_reviewed: 2026-05-08
+last_reviewed: 2026-05-09
 tags:
   - type/capability
   - domain/web
@@ -25,6 +25,15 @@ Serves the HTML web dashboard for monitoring Claude sessions remotely. The dashb
 - Reads session data from [[core-load-config|config]] to populate the dashboard
 - Injects the current version from `package.json` into the HTML
 - Restricts access via [[web-token-auth|token authentication]]
+
+## Dashboard layout (DashboardScreen)
+
+Top of the page:
+1. **Stat row** — 3 cards: Running (count / of total), Active (tmux sessions), Supervisor (online + port). Desktop: 3-column grid.
+2. **Broadcast bar** — send the same message to all active sessions at once; hidden when no active sessions.
+3. **Sessions header** — controls for sound, Telegram toggle, snippet lines, sort order, and New session button.
+4. **Session cards** — one card per session with status pill, snippet preview, quick-reply, and CTA buttons.
+5. **Recent Activity** — timestamped log of status transitions (shown only when non-empty).
 
 ## Entry point
 
