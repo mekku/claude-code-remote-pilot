@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.0 — 2026-05-08
+
+### Added
+- **Terminal keyboard UX**: arrow keys navigate Claude's numbered menus when the input is empty; when input has text, ↑/↓ walk through command history (last 100 sent messages). Tab is forwarded to tmux for completion/cycling. Ctrl+C and Ctrl+D send to tmux when the input is empty. Ctrl+U clears the input line; Ctrl+L sends clear-screen. Clicking anywhere in the terminal output area focuses the input.
+- **Auto-yes mode**: toggle button in the session header that automatically presses Enter when Claude's status becomes `needs-response` (confirms option 1 in permission menus after an 800 ms grace period). Can be toggled per session.
+- **Menu CTA detection**: when Claude shows a numbered choice menu (1 / 2 / 3 …), the terminal view and dashboard cards detect the options and render them as clickable buttons. Clicking navigates to the correct option via arrow keys then Enter — no typing required. Client-side regex handles the common case instantly; a "Parse options…" button triggers a server-side fallback that calls **ollama** (`OLLAMA_URL` + `OLLAMA_MODEL` env vars, defaults to `phi3:mini`) for non-standard terminal output that regex can't reliably parse.
+- **Dashboard snippet**: each active session card now shows the last non-empty line of terminal output as a dark terminal-style preview strip — updated every 3 s via the existing broadcast, no extra polling.
+- **Dashboard quick-reply**: every active session card has an inline send input. Type and press Enter (or `→`) to send a message directly from the dashboard without opening the detail view. Click events are contained so the card doesn't navigate.
+- **Dashboard CTA buttons**: when a session is in `needs-response` and menu options are detected, the buttons appear directly on the card so you can respond to multiple agents from the dashboard at once.
+- **CLI watch sort by name**: sessions in the watch table are now sorted alphabetically by name.
+- ↑ ↓ ⇥ buttons added to the web terminal footer for click-driven menu navigation.
+
+---
+
 ## 0.5.7 — 2026-05-06
 
 ### Fixed
