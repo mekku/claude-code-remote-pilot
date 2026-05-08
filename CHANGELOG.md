@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.4 — 2026-05-09
+
+### Changed
+- **Multi-line terminal input**: the input field is now a textarea. Enter inserts a newline; Ctrl+Enter (or the new **↵ Send** button) sends the message. Shift+Enter still sends a bare Enter keystroke to tmux.
+- **Mobile footer layout**: input row now stacks above the key buttons so the textarea is always visible on small screens.
+- **Key button order**: Esc moved to the far left, ↵ (bare Enter) moved to the far right — maximum separation to avoid accidental taps.
+
+---
+
 ## 0.8.3 — 2026-05-08
 
 ### Changed

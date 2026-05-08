@@ -144,12 +144,17 @@
   .terminal-dot{width:10px;height:10px;border-radius:50%;}
   .terminal-title{font-size:12px;color:oklch(65% 0.018 50);margin-left:8px;}
   .terminal-body{flex:1;min-height:0;padding:16px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;font-family:var(--font-mono);font-size:12px;line-height:1.5;}
-  .terminal-footer{display:flex;align-items:center;gap:8px;padding:8px 14px;background:oklch(18% 0.018 50);border-top:1px solid oklch(28% 0.02 50);flex-shrink:0;}
-  .terminal-prompt-char{color:oklch(72% 0.16 145);font-family:var(--font-mono);font-size:13px;flex-shrink:0;line-height:1;}
-  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:oklch(82% 0.015 70);font-family:var(--font-mono);font-size:12px;padding:2px 0;min-width:0;}
+  .terminal-footer{display:flex;align-items:flex-end;gap:8px;padding:8px 14px;background:oklch(18% 0.018 50);border-top:1px solid oklch(28% 0.02 50);flex-shrink:0;}
+  .terminal-input-row{display:flex;align-items:flex-end;gap:8px;flex:1;min-width:0;}
+  .terminal-keys{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .terminal-prompt-char{color:oklch(72% 0.16 145);font-family:var(--font-mono);font-size:13px;flex-shrink:0;line-height:1;padding-bottom:2px;}
+  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:oklch(82% 0.015 70);font-family:var(--font-mono);font-size:12px;padding:2px 0;min-width:0;resize:none;overflow-y:hidden;line-height:1.5;max-height:120px;}
   .terminal-input::placeholder{color:oklch(42% 0.018 50);}
   .btn-key{background:oklch(26% 0.02 50);border:1px solid oklch(35% 0.02 50);color:oklch(65% 0.018 50);font-family:var(--font-mono);font-size:11px;padding:2px 7px;border-radius:4px;cursor:pointer;flex-shrink:0;transition:background 0.12s;}
   .btn-key:hover{background:oklch(32% 0.02 50);color:oklch(78% 0.018 50);}
+  .btn-key-send{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+  .btn-key-send:hover{background:var(--accent);color:#fff;}
+  .btn-key-send:disabled{opacity:0.3;cursor:default;}
 
   .form-group{margin-bottom:18px;}
   .form-label{display:block;font-size:12px;font-weight:600;color:var(--fg);margin-bottom:6px;}
@@ -237,8 +242,10 @@
     .section-header{flex-direction:column;align-items:flex-start;gap:10px;}
     .section-header > div{width:100%;flex-wrap:wrap;}
     .menu-cta-btn{min-height:44px;font-size:13px;}
-    .terminal-footer{overflow-x:auto;gap:6px;padding:8px 10px;}
-    .btn-key{min-height:36px;padding:4px 10px;font-size:12px;}
+    .terminal-footer{flex-direction:column;align-items:stretch;gap:6px;padding:8px 10px;}
+    .terminal-input-row{width:100%;}
+    .terminal-keys{overflow-x:auto;padding-bottom:2px;}
+    .btn-key{min-height:40px;padding:4px 10px;font-size:12px;}
   }
 
   @media (min-width:768px) {
@@ -1049,6 +1056,14 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
     return () => clearTimeout(t);
   }, [autoYes, session.status, session.name, isOffline]);
 
+  // Auto-resize textarea as content grows
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }, [msg]);
+
   const sendMessage = async () => {
     if (!msg.trim() || sending || isOffline) return;
     const text = msg.trim();
@@ -1121,8 +1136,10 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   };
 
   const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendMessage(); return; }
     if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); sendKey('Enter'); return; }
-    if (e.key === 'Enter') { e.preventDefault(); if (!msg.trim()) sendKey('Enter'); else sendMessage(); return; }
+    if (e.key === 'Enter' && !msg.trim()) { e.preventDefault(); sendKey('Enter'); return; }
+    // Enter with text: let browser insert a newline naturally in the textarea
     // Arrow keys: forward to tmux when input is empty (navigate Claude menus),
     // navigate command history when there's text in the input.
     if (e.key === 'ArrowUp') {
@@ -1344,26 +1361,31 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
 
           {!isOffline && (
             <div className="terminal-footer">
-              <span className="terminal-prompt-char">❯</span>
-              <input
-                ref={inputRef}
-                className="terminal-input"
-                placeholder="send a message to Claude…"
-                value={msg}
-                onChange={e => setMsg(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={sending}
-                spellCheck={false}
-                autoComplete="off"
-                autoCorrect="off"
-              />
-              <button className="btn-key" onClick={() => sendKey('Up')} title="Arrow Up — navigate Claude menus (or use ↑ in empty input)">↑</button>
-              <button className="btn-key" onClick={() => sendKey('Down')} title="Arrow Down — navigate Claude menus">↓</button>
-              <button className="btn-key" onClick={() => sendKey('Tab')} title="Tab — complete / cycle options">⇥</button>
-              <button className="btn-key" onClick={() => sendKey('Escape')} title="Escape">Esc</button>
-              <button className="btn-key" onClick={() => sendKey('Enter')} title="Enter">↵</button>
-              <button className="btn-key" onClick={() => sendKey('C-c')} title="Ctrl+C — interrupt (or press Ctrl+C in empty input)">^C</button>
-              <button className="btn-key" onClick={() => sendKey('C-d')} title="Ctrl+D — EOF / exit (or press Ctrl+D in empty input)">^D</button>
+              <div className="terminal-input-row">
+                <span className="terminal-prompt-char">❯</span>
+                <textarea
+                  ref={inputRef}
+                  className="terminal-input"
+                  placeholder="send a message… (Enter = new line, Ctrl+Enter = send)"
+                  value={msg}
+                  rows={1}
+                  onChange={e => setMsg(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={sending}
+                  spellCheck={false}
+                  autoCorrect="off"
+                />
+                <button className="btn-key btn-key-send" onClick={sendMessage} disabled={!msg.trim() || sending || isOffline} title="Send (Ctrl+Enter)">↵ Send</button>
+              </div>
+              <div className="terminal-keys">
+                <button className="btn-key" onClick={() => sendKey('Escape')} title="Escape">Esc</button>
+                <button className="btn-key" onClick={() => sendKey('Up')} title="Arrow Up — navigate Claude menus">↑</button>
+                <button className="btn-key" onClick={() => sendKey('Down')} title="Arrow Down — navigate Claude menus">↓</button>
+                <button className="btn-key" onClick={() => sendKey('Tab')} title="Tab — complete / cycle options">⇥</button>
+                <button className="btn-key" onClick={() => sendKey('C-c')} title="Ctrl+C — interrupt (or press Ctrl+C in empty input)">^C</button>
+                <button className="btn-key" onClick={() => sendKey('C-d')} title="Ctrl+D — EOF / exit (or press Ctrl+D in empty input)">^D</button>
+                <button className="btn-key" onClick={() => sendKey('Enter')} title="Send bare Enter to tmux">↵</button>
+              </div>
             </div>
           )}
         </div>
