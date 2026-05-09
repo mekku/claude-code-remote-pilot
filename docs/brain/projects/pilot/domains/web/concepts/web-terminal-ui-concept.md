@@ -8,7 +8,7 @@ confidence: source_supported
 source_files:
   - lib/ui.html
 last_reviewed: 2026-05-09
-version: 0.8.7
+version: 0.9.0
 tags:
   - type/concept
   - domain/web
@@ -23,9 +23,11 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 
 - **ANSI rendering** — `ansiToHtml()` converts colour/formatting escapes to `<span>` elements with inline styles; falls back to stripped plain text on error.
 - **Click-to-focus** — clicking anywhere on the terminal body focuses the hidden input so keystrokes are forwarded to tmux. Guard: only steals focus when `window.getSelection().toString()` is empty, so click-drag text selection is preserved.
-- **Tab-switching layout** — `SessionDetailScreen` has an `activeTab` state (`'terminal'` | `'git'`) and a `.tab-bar` with two `.tab-btn` tabs. When `activeTab === 'terminal'` the standard `detail-grid` (terminal + sidebar with `QueuePanel`) is shown; when `activeTab === 'git'` the `GitPanel` is rendered full-width. `activeTab` resets to `'terminal'` whenever the selected session changes.
-- **Queue sidebar** — `QueuePanel` is rendered inside `.detail-sidebar` (right column of the detail grid), beneath Session Info. The sidebar is `flex-direction:column; overflow-y:auto` so a long queue list scrolls without overflowing the layout.
-- **Resize sync** — on mount and resize, the component measures the rendered terminal viewport (using a hidden probe character) and calls `POST /api/sessions/:name/resize` to match the tmux pane dimensions to the browser window.
+- **Tab-switching layout** — `SessionDetailScreen` has an `activeTab` state and a `.tab-bar`. On desktop: two tabs (`terminal` | `git`); terminal tab shows `detail-grid` (terminal + sidebar with Session Info and `QueuePanel`), git tab shows `GitPanel` full-width. On mobile: four tabs (`terminal` | `info` | `queue` | `git`); terminal tab shows terminal full-width with no sidebar; Info tab shows action buttons + session info + label; Queue tab shows `QueuePanel`. `activeTab` resets to `'terminal'` whenever the selected session changes.
+- **Mobile full-screen terminal** — on `isMobile` (`window.innerWidth < 768`), terminal height is `calc(100dvh - 230px)` (uses dynamic viewport height to account for mobile browser chrome). The `.terminal-footer` gets the `mobile-fixed` class (`position:fixed; bottom:0; left:0; right:0; z-index:50`) so the input stays visible while scrolling output. The `.terminal-body` gets `paddingBottom:130` to avoid content hidden behind the fixed footer. Action buttons are hidden via `.detail-actions{display:none}` on mobile and surfaced in the Info tab instead.
+- **Font size controls** — `A-` / `A+` buttons in the terminal header adjust `termFontSize` state (range 10–18 px, default 12). Value is persisted to `localStorage` under key `pilot-term-fsz` and restored on mount. Applied as inline `fontSize` on the terminal body. The resize-sync probe also uses `termFontSize` so column/row calculations stay accurate after a font change (`termFontSize` is in the resize effect dependency array).
+- **Queue sidebar** — on desktop, `QueuePanel` is rendered inside `.detail-sidebar` (right column of the detail grid), beneath Session Info. The sidebar is `flex-direction:column; overflow-y:auto` so a long queue list scrolls without overflowing the layout.
+- **Resize sync** — on mount and resize, the component measures the rendered terminal viewport (using a hidden probe character at the current `termFontSize`) and calls `POST /api/sessions/:name/resize` to match the tmux pane dimensions to the browser window.
 - **Multi-line input** — the input element is a `<textarea>` (since v0.8.4), not an `<input>`. It auto-resizes via a `useEffect` that sets `el.style.height` to `Math.min(el.scrollHeight, 120)px` on every `msg` state change. Maximum visible height is 120 px (~5 lines); content beyond that scrolls inside the textarea.
 - **Special keys** — Ctrl+C, Ctrl+D, Tab, Up/Down arrow, Ctrl+U, Ctrl+L are intercepted in `handleKeyDown` and forwarded as tmux key sequences.
 - **Enter behaviour** — Enter sends the message (single or multi-line). Ctrl/Cmd+Enter inserts a newline at the cursor (manual `\n` splice into state + `requestAnimationFrame` cursor reposition). Shift+Enter sends a bare Enter to tmux (quick confirm). Enter with empty input sends a bare Enter to tmux.

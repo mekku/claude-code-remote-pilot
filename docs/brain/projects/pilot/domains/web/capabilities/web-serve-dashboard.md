@@ -8,6 +8,7 @@ confidence: source_supported
 source_files:
   - lib/WebServer.js
 last_reviewed: 2026-05-09
+version: 0.9.0
 tags:
   - type/capability
   - domain/web
@@ -30,9 +31,14 @@ Serves the HTML web dashboard for monitoring Claude sessions remotely. The dashb
 
 Top of the page:
 1. **Stat row** — 4 cards in a grid: Running (count / of total), Active (tmux sessions), Supervisor (online + port), **Broadcast** (inline input + Send button; disabled with placeholder when no active sessions).
+2. **Sysinfo minibar** — compact bar showing live CPU load %, RAM used/total, and disk used/total with colour-coded progress bars; polls `GET /api/sysinfo` every 5 s. Colours: green → yellow (>60 %) → red (>85 %).
 3. **Sessions header** — controls for sound, Telegram toggle, snippet lines, sort order, and New session button.
 4. **Session cards** — one card per session with status pill, snippet preview, quick-reply, and CTA buttons.
 5. **Recent Activity** — timestamped log of status transitions (shown only when non-empty).
+
+## Sysinfo endpoint
+
+`GET /api/sysinfo` — returns `{ cpuPct, totalMem, usedMem, diskTotal, diskUsed }`. CPU % is derived from `os.loadavg()[0] / os.cpus().length`. Disk stats are parsed from `df -k /`. Added in v0.9.0.
 
 ## Entry point
 
