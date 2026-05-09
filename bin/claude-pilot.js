@@ -44,6 +44,21 @@ function cloudflaredInstallCmd() {
 
 function isYes(answer) { return answer === '' || answer === 'y' || answer === 'yes'; }
 
+function isHeadless() {
+  if (process.env.SSH_CLIENT || process.env.SSH_TTY || process.env.SSH_CONNECTION) return true;
+  if (process.platform !== 'darwin' && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY) return true;
+  return false;
+}
+
+function openUrl(url, label) {
+  const tag = label ? `  ${label}: ` : '  ';
+  console.log(`${tag}${url}`);
+  if (!isHeadless()) {
+    const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
+    spawn(opener, [url], { stdio: 'ignore', detached: true }).unref();
+  }
+}
+
 function getLanIp() {
   for (const ifaces of Object.values(os.networkInterfaces())) {
     for (const iface of ifaces) {
@@ -265,8 +280,7 @@ function startWatch(manager, rl) {
           webServer.start();
         }
         const url = `http://${webServer.host}:${webServer.port}`;
-        const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
-        spawn(opener, [url], { stdio: 'ignore', detached: true }).unref();
+        openUrl(url, 'Web dashboard');
         return;
       }
       const n = parseInt(str);
@@ -508,8 +522,7 @@ ${HELP}`);
       }).catch(e => console.log(`  ✗ Tunnel failed: ${e.message}`));
     }
 
-    const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
-    spawn(opener, [localUrl], { stdio: 'ignore', detached: true }).unref();
+    openUrl(localUrl, 'Web dashboard');
     console.log('');
   }
 
@@ -601,8 +614,7 @@ ${HELP}`);
           const url = `http://${host}:${port}`;
           console.log(`  ✓ Web dashboard started at ${url}`);
           if (password) console.log('  Password protection enabled.');
-          const opener = process.platform === 'darwin' ? 'open' : 'xdg-open';
-          spawn(opener, [url], { stdio: 'ignore', detached: true }).unref();
+          openUrl(url, 'Web dashboard');
           if (useTunnel) {
             console.log('  Starting cloudflared tunnel...');
             webServer.startTunnel().then(publicUrl => {
