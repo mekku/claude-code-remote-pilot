@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.3 — 2026-05-09
+
+### Fixed
+- **Quota fetch reliable**: replaced fixed sleep waits with `pollFor()` — polls tmux pane every 500 ms until the expected string appears (claude prompt within 8 s, usage output within 6 s). Eliminates false-null caused by timing races. Session name now uses timestamp instead of PID to prevent name conflicts if a previous fetch crashed without cleanup.
+
+---
+
 ## 0.12.2 — 2026-05-09
 
 ### Fixed
