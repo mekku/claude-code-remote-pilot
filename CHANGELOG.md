@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.9 — 2026-05-09
+
+### Fixed
+- **Git tab — files inside directories**: `git status` now uses `-uall` so untracked directories are expanded to individual files. Previously an untracked directory appeared as a single entry with no diff or commit support; now every file inside is listed, selectable, and diffable.
+
+---
+
 ## 0.8.8 — 2026-05-09
 
 ### Fixed

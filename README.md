@@ -60,7 +60,7 @@ It's a practical helper tool for people who run Claude Code for extended periods
 - **Menu choice detection** — when Claude shows a numbered menu (1 / 2 / 3), clickable buttons appear automatically; optional ollama fallback for non-standard output
 - **Dashboard quick-reply** — send a message to any session directly from the card without opening the terminal
 - **Snippet preview** — each card shows the last 4 lines of terminal output at a glance
-- **Git tab** — review changes, browse diffs, and commit from the browser without leaving the dashboard
+- **Git tab** — review changes, browse diffs, and commit from the browser without leaving the dashboard; untracked directories are expanded so every file inside is individually selectable and diffable
 - **Open in Finder** — one-click button opens the session's working directory in macOS Finder
 - Spawn, kill, or respawn sessions from the browser
 - Live status updates via SSE with fallback polling
