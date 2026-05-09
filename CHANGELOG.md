@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 — 2026-05-09
+
+### Added
+- **Mobile terminal — full screen**: terminal fills the viewport on mobile (`100dvh`); the input footer is fixed to the bottom of the screen so it stays visible while scrolling output.
+- **Mobile tabs**: session detail view gains two extra tabs on mobile — **Info** (actions + session info + label) and **Queue** — so the terminal is always full width. Desktop layout unchanged.
+- **Font size controls**: `A-` / `A+` buttons in the terminal header adjust display font size (10–18 px). Setting is saved to `localStorage` and restored on next visit.
+- **Dashboard sysinfo minibar**: a compact bar below the stat cards shows live CPU load, RAM usage, and disk usage with colour-coded mini progress bars, refreshed every 5 s.
+
+---
+
 ## 0.8.9 — 2026-05-09
 
 ### Fixed

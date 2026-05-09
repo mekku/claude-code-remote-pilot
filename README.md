@@ -62,9 +62,15 @@ It's a practical helper tool for people who run Claude Code for extended periods
 - **Snippet preview** — each card shows the last 4 lines of terminal output at a glance
 - **Git tab** — review changes, browse diffs, and commit from the browser without leaving the dashboard; untracked directories are expanded so every file inside is individually selectable and diffable
 - **Open in Finder** — one-click button opens the session's working directory in macOS Finder
+- **Sysinfo minibar** — live CPU load, RAM, and disk usage with colour-coded progress bars, updated every 5 s
 - Spawn, kill, or respawn sessions from the browser
 - Live status updates via SSE with fallback polling
 - Browser desktop notifications on status changes
+
+**Mobile**
+- Full-screen terminal with input bar fixed to the bottom of the viewport — stays visible while scrolling output
+- Four-tab layout on mobile: Terminal · Info · Queue · Git — terminal is always full width
+- **Font size controls** (`A-` / `A+`) in the terminal header; preference saved and restored across sessions
 
 **Message queue**
 - Pre-queue prompts per session and play them manually or with **auto-feed** mode

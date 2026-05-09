@@ -164,6 +164,11 @@
   .form-textarea{resize:vertical;min-height:80px;}
   .form-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:20px;border-top:1px solid var(--border);margin-top:8px;}
 
+  .sysinfo-bar{display:flex;align-items:center;gap:16px;padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:14px;flex-wrap:wrap;}
+  .sysinfo-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--fg-secondary);font-family:var(--font-mono);}
+  .sysinfo-label{color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-size:10px;font-family:var(--font-body);}
+  .sysinfo-bar-track{width:56px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .sysinfo-bar-fill{height:100%;border-radius:2px;transition:width 0.4s ease;}
   .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
   .stat-card{padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-inner);}
   .stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:6px;}
@@ -247,6 +252,10 @@
     .terminal-keys{overflow-x:auto;padding-bottom:2px;}
     .btn-key{min-height:40px;padding:4px 10px;font-size:12px;}
     .terminal-input{font-size:16px;} /* prevent iOS zoom on focus */
+    .detail-actions{display:none;}
+    .terminal-footer.mobile-fixed{position:fixed;bottom:0;left:0;right:0;z-index:50;border-radius:0;}
+    .terminal-fsz-btn{background:oklch(26% 0.02 50);border:1px solid oklch(35% 0.02 50);color:oklch(65% 0.018 50);font-size:10px;padding:2px 7px;border-radius:3px;cursor:pointer;line-height:1.5;}
+    .terminal-fsz-val{font-size:10px;color:oklch(55% 0.015 70);min-width:22px;text-align:center;font-family:var(--font-mono);}
   }
 
   @media (min-width:768px) {
@@ -811,6 +820,47 @@ function SessionCard({ session, onNavigate, snippetLines }) {
   );
 }
 
+/* --- SysInfo minibar --- */
+function SysInfoBar() {
+  const [info, setInfo] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    const fetch_ = () => apiFetch('/api/sysinfo', { cache: 'no-store' }).then(d => { if (mounted) setInfo(d); }).catch(() => {});
+    fetch_();
+    const t = setInterval(fetch_, 5000);
+    return () => { mounted = false; clearInterval(t); };
+  }, []);
+  if (!info) return null;
+  const fmt = (bytes) => {
+    const g = bytes / 1073741824;
+    return g >= 1 ? g.toFixed(1) + ' GB' : (bytes / 1048576).toFixed(0) + ' MB';
+  };
+  const barColor = (pct) => pct > 85 ? 'var(--error)' : pct > 60 ? 'var(--warning)' : 'var(--success)';
+  const memPct = info.totalMem ? Math.round(info.usedMem / info.totalMem * 100) : 0;
+  const diskPct = info.diskTotal ? Math.round(info.diskUsed / info.diskTotal * 100) : 0;
+  return (
+    <div className="sysinfo-bar">
+      <div className="sysinfo-item">
+        <span className="sysinfo-label">CPU</span>
+        <div className="sysinfo-bar-track"><div className="sysinfo-bar-fill" style={{ width: info.cpuPct + '%', background: barColor(info.cpuPct) }} /></div>
+        <span>{info.cpuPct}%</span>
+      </div>
+      <div className="sysinfo-item">
+        <span className="sysinfo-label">RAM</span>
+        <div className="sysinfo-bar-track"><div className="sysinfo-bar-fill" style={{ width: memPct + '%', background: barColor(memPct) }} /></div>
+        <span>{fmt(info.usedMem)} / {fmt(info.totalMem)}</span>
+      </div>
+      {info.diskTotal > 0 && (
+        <div className="sysinfo-item">
+          <span className="sysinfo-label">Disk</span>
+          <div className="sysinfo-bar-track"><div className="sysinfo-bar-fill" style={{ width: diskPct + '%', background: barColor(diskPct) }} /></div>
+          <span>{fmt(info.diskUsed)} / {fmt(info.diskTotal)}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* --- Dashboard --- */
 function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy, onSortChange, snippetLines, onSnippetChange, telegramEnabled, hasTelegram, onTelegramToggle, soundOn, onSoundToggle }) {
   const sorted = sortSessions(sessions, sortBy);
@@ -826,6 +876,8 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
         <div className="stat-card"><div className="stat-label">Supervisor</div><div className="stat-value" style={{ color: 'var(--success)', fontSize: 15 }}>Online</div><div className="stat-sub">:{port}</div></div>
         <BroadcastCard activeSessions={active.length} />
       </div>
+
+      <SysInfoBar />
 
       <div className="section-header">
         <h2 className="section-title">Sessions</h2>
@@ -899,6 +951,23 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   const [parseLoading, setParseLoading] = useState(false);
   const [ctaHit, setCtaHit] = useState(null);
   const ctaTimerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [termFontSize, setTermFontSize] = useState(() => {
+    const s = localStorage.getItem('pilot-term-fsz');
+    return s ? Math.max(10, Math.min(18, parseInt(s, 10))) : 12;
+  });
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const changeFontSize = (d) => setTermFontSize(prev => {
+    const next = Math.max(10, Math.min(18, prev + d));
+    localStorage.setItem('pilot-term-fsz', next);
+    return next;
+  });
 
   const copyAttachCmd = () => {
     const cmd = `tmux attach -t ${session.name}`;
@@ -947,7 +1016,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
       // Measure a single monospace character to get cell dimensions
       const probe = document.createElement('span');
       probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;' +
-        'font-family:var(--font-mono);font-size:12px;line-height:1.5;';
+        `font-family:var(--font-mono);font-size:${termFontSize}px;line-height:1.5;`;
       probe.textContent = 'M';
       el.appendChild(probe);
       const charW = probe.getBoundingClientRect().width || 7.2;
@@ -974,7 +1043,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
     const ro = new ResizeObserver(onResize);
     ro.observe(el);
     return () => { ro.disconnect(); clearTimeout(debounce); };
-  }, [session.name, isOffline]);
+  }, [session.name, isOffline, termFontSize]);
 
   // Poll terminal output at near-realtime cadence
   useEffect(() => {
@@ -1238,10 +1307,9 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   }
 
   // Terminal height: fill viewport minus chrome
-  const terminalStyle = {
-    height: 'calc(100vh - 210px)',
-    minHeight: 360,
-  };
+  const terminalStyle = isMobile
+    ? { height: 'calc(100dvh - 230px)', minHeight: 200 }
+    : { height: 'calc(100vh - 210px)', minHeight: 360 };
 
   return (
     <div>
@@ -1301,105 +1369,162 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
       </div>
 
       <div className="tab-bar">
-        <button className={`tab-btn ${activeTab === 'terminal' ? 'active' : ''}`} onClick={() => setActiveTab('terminal')}>
-          ⬛ Terminal
-        </button>
-        <button className={`tab-btn ${activeTab === 'git' ? 'active' : ''}`} onClick={() => setActiveTab('git')}>
-          ± Git
-        </button>
+        <button className={`tab-btn ${activeTab === 'terminal' ? 'active' : ''}`} onClick={() => setActiveTab('terminal')}>⬛ Terminal</button>
+        {isMobile && <button className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>ℹ Info</button>}
+        {isMobile && <button className={`tab-btn ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => setActiveTab('queue')}>≡ Queue</button>}
+        <button className={`tab-btn ${activeTab === 'git' ? 'active' : ''}`} onClick={() => setActiveTab('git')}>± Git</button>
       </div>
 
-      {activeTab === 'terminal' && <div className="detail-grid">
-        {/* Terminal — fills available height, input pinned at bottom */}
-        <div className="terminal" style={terminalStyle}>
-          <div className="terminal-header">
-            <span className="terminal-dot" style={{ background: '#ff5f57' }} />
-            <span className="terminal-dot" style={{ background: '#febc2e' }} />
-            <span className="terminal-dot" style={{ background: '#28c840' }} />
-            <span className="terminal-title">{session.name}</span>
-            <span style={{ flex: 1 }} />
-            {!isOffline && <span style={{ fontSize: 10, color: 'oklch(42% 0.018 50)', fontFamily: 'var(--font-mono)', marginRight: 10 }}>Ctrl+B D · detach</span>}
-            <StatusPill status={session.status} />
+      {activeTab === 'terminal' && (() => {
+        const termEl = (
+          <div className="terminal" style={terminalStyle}>
+            <div className="terminal-header">
+              <span className="terminal-dot" style={{ background: '#ff5f57' }} />
+              <span className="terminal-dot" style={{ background: '#febc2e' }} />
+              <span className="terminal-dot" style={{ background: '#28c840' }} />
+              <span className="terminal-title">{session.name}</span>
+              <span style={{ flex: 1 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginRight: 8 }}>
+                <button className="terminal-fsz-btn" onClick={() => changeFontSize(-1)} title="Decrease font size">A-</button>
+                <span className="terminal-fsz-val">{termFontSize}</span>
+                <button className="terminal-fsz-btn" onClick={() => changeFontSize(1)} title="Increase font size">A+</button>
+              </div>
+              {!isOffline && <span style={{ fontSize: 10, color: 'oklch(42% 0.018 50)', fontFamily: 'var(--font-mono)', marginRight: 10 }}>Ctrl+B D · detach</span>}
+              <StatusPill status={session.status} />
+            </div>
+
+            <div
+              className="terminal-body"
+              ref={terminalRef}
+              onClick={() => { if (!window.getSelection()?.toString()) inputRef.current?.focus(); }}
+              style={{ cursor: isOffline ? 'default' : 'text', fontSize: termFontSize, ...(isMobile ? { paddingBottom: 130 } : {}) }}
+              dangerouslySetInnerHTML={{ __html:
+                isOffline
+                  ? '<span style="color:oklch(50% 0.018 50)">Session is offline — no output available.</span>'
+                  : _termHtml
+                    ? _termHtml + '<span style="opacity:0.4">▊</span>'
+                    : (connecting
+                        ? '<span style="color:oklch(50% 0.018 50)">Connecting…</span>'
+                        : (pollError
+                            ? '<span style="color:oklch(64% 0.20 28)">Can\'t read terminal output. Retrying…</span>'
+                            : '<span style="color:oklch(50% 0.018 50)">No output yet.</span>'))
+              }}
+            />
+
+            {/* Numbered-choice CTA strip — appears when Claude shows a 1/2/3 menu */}
+            {!isOffline && session.status === 'needs-response' && (
+              <div className="menu-cta-strip">
+                {parsedSource === 'model' && displayOptions.length > 0 && (
+                  <span style={{ fontSize: 10, color: 'oklch(50% 0.018 50)', fontFamily: 'var(--font-mono)' }}>⚡ ollama</span>
+                )}
+                {displayOptions.map(opt => (
+                  <button
+                    key={opt.num}
+                    className={`menu-cta-btn${ctaHit === opt.num ? ' hit' : ''}`}
+                    title={opt.label}
+                    disabled={ctaHit !== null}
+                    onClick={() => sendMenuOption(opt.num)}
+                  >
+                    <span className="menu-cta-num">{ctaHit === opt.num ? '✓' : opt.num}</span>
+                    <span className="menu-cta-text">{opt.label}</span>
+                  </button>
+                ))}
+                {displayOptions.length === 0 && !parseLoading && (
+                  <button className="btn-key" style={{ fontSize: 11, alignSelf: 'flex-start' }} onClick={parseWithModel} title="Use local AI model (ollama) to detect menu options">
+                    Parse options…
+                  </button>
+                )}
+                {parseLoading && <span style={{ fontSize: 11, color: 'oklch(55% 0.018 50)', fontFamily: 'var(--font-mono)' }}>parsing…</span>}
+              </div>
+            )}
+
+            {!isOffline && (
+              <div className={`terminal-footer${isMobile ? ' mobile-fixed' : ''}`}>
+                <div className="terminal-input-row">
+                  <span className="terminal-prompt-char">❯</span>
+                  <textarea
+                    ref={inputRef}
+                    className="terminal-input"
+                    placeholder="send a message… (Enter = send, Ctrl+Enter = new line)"
+                    value={msg}
+                    rows={1}
+                    onChange={e => setMsg(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={sending}
+                    spellCheck={false}
+                    autoCorrect="off"
+                  />
+                  <button className="btn-key btn-key-send" onClick={sendMessage} disabled={!msg.trim() || sending || isOffline} title="Send (Enter)">↵ Send</button>
+                </div>
+                <div className="terminal-keys">
+                  <button className="btn-key" onClick={() => sendKey('Escape')} title="Escape">Esc</button>
+                  <button className="btn-key" onClick={() => sendKey('Up')} title="Arrow Up — navigate Claude menus">↑</button>
+                  <button className="btn-key" onClick={() => sendKey('Down')} title="Arrow Down — navigate Claude menus">↓</button>
+                  <button className="btn-key" onClick={() => sendKey('Tab')} title="Tab — complete / cycle options">⇥</button>
+                  <button className="btn-key" onClick={() => sendKey('C-c')} title="Ctrl+C — interrupt (or press Ctrl+C in empty input)">^C</button>
+                  <button className="btn-key" onClick={() => sendKey('C-d')} title="Ctrl+D — EOF / exit (or press Ctrl+D in empty input)">^D</button>
+                  <button className="btn-key" onClick={() => sendKey('Enter')} title="Send bare Enter to tmux">↵</button>
+                </div>
+              </div>
+            )}
           </div>
-
-          <div
-            className="terminal-body"
-            ref={terminalRef}
-            onClick={() => { if (!window.getSelection()?.toString()) inputRef.current?.focus(); }}
-            style={{ cursor: isOffline ? 'default' : 'text' }}
-            dangerouslySetInnerHTML={{ __html:
-              isOffline
-                ? '<span style="color:oklch(50% 0.018 50)">Session is offline — no output available.</span>'
-                : _termHtml
-                  ? _termHtml + '<span style="opacity:0.4">▊</span>'
-                  : (connecting
-                      ? '<span style="color:oklch(50% 0.018 50)">Connecting…</span>'
-                      : (pollError
-                          ? '<span style="color:oklch(64% 0.20 28)">Can\'t read terminal output. Retrying…</span>'
-                          : '<span style="color:oklch(50% 0.018 50)">No output yet.</span>'))
-            }}
-          />
-
-          {/* Numbered-choice CTA strip — appears when Claude shows a 1/2/3 menu */}
-          {!isOffline && session.status === 'needs-response' && (
-            <div className="menu-cta-strip">
-              {parsedSource === 'model' && displayOptions.length > 0 && (
-                <span style={{ fontSize: 10, color: 'oklch(50% 0.018 50)', fontFamily: 'var(--font-mono)' }}>⚡ ollama</span>
-              )}
-              {displayOptions.map(opt => (
-                <button
-                  key={opt.num}
-                  className={`menu-cta-btn${ctaHit === opt.num ? ' hit' : ''}`}
-                  title={opt.label}
-                  disabled={ctaHit !== null}
-                  onClick={() => sendMenuOption(opt.num)}
-                >
-                  <span className="menu-cta-num">{ctaHit === opt.num ? '✓' : opt.num}</span>
-                  <span className="menu-cta-text">{opt.label}</span>
-                </button>
-              ))}
-              {displayOptions.length === 0 && !parseLoading && (
-                <button className="btn-key" style={{ fontSize: 11, alignSelf: 'flex-start' }} onClick={parseWithModel} title="Use local AI model (ollama) to detect menu options">
-                  Parse options…
-                </button>
-              )}
-              {parseLoading && <span style={{ fontSize: 11, color: 'oklch(55% 0.018 50)', fontFamily: 'var(--font-mono)' }}>parsing…</span>}
-            </div>
-          )}
-
-          {!isOffline && (
-            <div className="terminal-footer">
-              <div className="terminal-input-row">
-                <span className="terminal-prompt-char">❯</span>
-                <textarea
-                  ref={inputRef}
-                  className="terminal-input"
-                  placeholder="send a message… (Enter = send, Ctrl+Enter = new line)"
-                  value={msg}
-                  rows={1}
-                  onChange={e => setMsg(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={sending}
-                  spellCheck={false}
-                  autoCorrect="off"
-                />
-                <button className="btn-key btn-key-send" onClick={sendMessage} disabled={!msg.trim() || sending || isOffline} title="Send (Enter)">↵ Send</button>
+        );
+        return isMobile ? termEl : (
+          <div className="detail-grid">
+            {termEl}
+            <div className="detail-sidebar">
+              <div className="card">
+                <h3>Session Info</h3>
+                <div className="info-row"><span className="info-label">Status</span><StatusPill status={session.status} /></div>
+                <div className="info-row"><span className="info-label">Agent</span><span className="info-value" style={{ fontSize: 11 }}>{session.command || 'claude'}</span></div>
+                <div className="info-row"><span className="info-label">Started</span><span className="info-value" style={{ fontSize: 11 }}>{relativeTime(session.startedAt)}</span></div>
+                <div className="info-row"><span className="info-label">Tokens</span><span className="info-value" style={{ fontSize: 11 }}>{formatTokens(session.tokens)}</span></div>
+                {session.status === 'limit' && session.resumeAt && (
+                  <div className="info-row"><span className="info-label">Resumes</span><span className="info-value" style={{ fontSize: 11, color: 'var(--warning)' }}>{relativeTime(session.resumeAt)}</span></div>
+                )}
+                <div className="info-row"><span className="info-label">tmux</span><span className="info-value" style={{ fontSize: 11 }}>{session.name}</span></div>
+                <div className="info-row" style={{ alignItems: 'flex-start', paddingTop: 10, marginTop: 4, borderTop: '1px solid var(--border)' }}>
+                  <span className="info-label" style={{ paddingTop: 4 }}>Label</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <input value={emoji} onChange={e => setEmoji(e.target.value)} onBlur={() => saveMeta(emoji, color)} maxLength={8} placeholder="😀"
+                      style={{ width: 44, textAlign: 'center', fontSize: 18, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg)', color: 'var(--fg)', cursor: 'text' }} />
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {CARD_COLORS.map(c => (
+                        <button key={c || 'none'} onClick={() => { setColor(c); saveMeta(emoji, c); }} title={c || 'No color'} style={{
+                          width: 16, height: 16, borderRadius: '50%', padding: 0, cursor: 'pointer', flexShrink: 0,
+                          background: c || 'transparent',
+                          border: color === c ? '2px solid var(--fg)' : c ? '1px solid oklch(0% 0 0 / 0.2)' : '1px dashed var(--muted)',
+                        }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="terminal-keys">
-                <button className="btn-key" onClick={() => sendKey('Escape')} title="Escape">Esc</button>
-                <button className="btn-key" onClick={() => sendKey('Up')} title="Arrow Up — navigate Claude menus">↑</button>
-                <button className="btn-key" onClick={() => sendKey('Down')} title="Arrow Down — navigate Claude menus">↓</button>
-                <button className="btn-key" onClick={() => sendKey('Tab')} title="Tab — complete / cycle options">⇥</button>
-                <button className="btn-key" onClick={() => sendKey('C-c')} title="Ctrl+C — interrupt (or press Ctrl+C in empty input)">^C</button>
-                <button className="btn-key" onClick={() => sendKey('C-d')} title="Ctrl+D — EOF / exit (or press Ctrl+D in empty input)">^D</button>
-                <button className="btn-key" onClick={() => sendKey('Enter')} title="Send bare Enter to tmux">↵</button>
-              </div>
+              <QueuePanel session={session} />
             </div>
-          )}
-        </div>
+          </div>
+        );
+      })()}
 
-        {/* Info + Queue sidebar */}
-        <div className="detail-sidebar">
+      {activeTab === 'info' && isMobile && (
+        <div>
+          <div className="card" style={{ marginBottom: 12 }}>
+            <h3>Actions</h3>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button className="btn btn-sm" onClick={openFinder}>{finderOk ? '✓' : '📂'} Finder</button>
+              {isOffline && <>
+                <button className="btn btn-sm btn-primary" onClick={handleRespawn} disabled={respawning}>{respawning ? 'Respawning…' : '↺ Respawn'}</button>
+                <button className="btn btn-sm" style={{ color: 'var(--error)' }} onClick={handleRemove}>{Icons.trash} Remove</button>
+                {respawnError && <span style={{ color: 'var(--error)', fontSize: 12 }}>{respawnError}</span>}
+              </>}
+              {!isOffline && <>
+                <button className="btn btn-sm" onClick={() => setAutoYes(a => !a)} style={autoYes ? { background: 'var(--success-soft)', color: 'var(--success)', borderColor: 'var(--success)' } : {}}>{autoYes ? '⚡ Auto-yes' : 'Auto-yes'}</button>
+                <button className="btn btn-sm" onClick={copyAttachCmd}>{copyOk ? '✓ Copied' : '⊞ New Terminal'}</button>
+                <button className="btn btn-sm" style={{ color: 'var(--error)' }} onClick={handleKill} disabled={killing}>{Icons.trash} {killing ? 'Ending…' : 'End'}</button>
+                {killError && <span style={{ color: 'var(--error)', fontSize: 12 }}>{killError}</span>}
+              </>}
+            </div>
+          </div>
           <div className="card">
             <h3>Session Info</h3>
             <div className="info-row"><span className="info-label">Status</span><StatusPill status={session.status} /></div>
@@ -1413,14 +1538,8 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
             <div className="info-row" style={{ alignItems: 'flex-start', paddingTop: 10, marginTop: 4, borderTop: '1px solid var(--border)' }}>
               <span className="info-label" style={{ paddingTop: 4 }}>Label</span>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <input
-                  value={emoji}
-                  onChange={e => setEmoji(e.target.value)}
-                  onBlur={() => saveMeta(emoji, color)}
-                  maxLength={8}
-                  placeholder="😀"
-                  style={{ width: 44, textAlign: 'center', fontSize: 18, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg)', color: 'var(--fg)', cursor: 'text' }}
-                />
+                <input value={emoji} onChange={e => setEmoji(e.target.value)} onBlur={() => saveMeta(emoji, color)} maxLength={8} placeholder="😀"
+                  style={{ width: 44, textAlign: 'center', fontSize: 18, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg)', color: 'var(--fg)', cursor: 'text' }} />
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   {CARD_COLORS.map(c => (
                     <button key={c || 'none'} onClick={() => { setColor(c); saveMeta(emoji, c); }} title={c || 'No color'} style={{
@@ -1433,9 +1552,10 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
               </div>
             </div>
           </div>
-          <QueuePanel session={session} />
         </div>
-      </div>}
+      )}
+
+      {activeTab === 'queue' && isMobile && <QueuePanel session={session} />}
 
       {activeTab === 'git' && <GitPanel session={session} fullWidth />}
     </div>
