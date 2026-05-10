@@ -1,6 +1,25 @@
 # Tasks
 
-## Current version: 0.12.7 (published)
+## Current version: 0.12.9 (published)
+
+---
+
+## Completed (v0.12.8)
+- [x] lib/Watcher.js: support reset time format with timezone: "resets 6am (Asia/Bangkok)"
+- [x] RESET_AT_RE regex captures optional timezone in parentheses
+- [x] _parseResetTime() includes timezone in notifications
+- [x] _parseResetAtMs() handles times with/without colons
+- [x] CHANGELOG and version bumped to 0.12.8
+- [x] Published to npm
+
+## Completed (v0.12.9)
+- [x] lib/Watcher.js: add _limitHandlingUntil flag to prevent retry spam
+- [x] Block repeated _handleLimit() calls when limit persists after reset time
+- [x] Defer retries for 2 minutes when limit still showing
+- [x] Clear flag when session returns to running state
+- [x] KB updated with retry prevention logic
+- [x] CHANGELOG and version bumped to 0.12.9
+- [x] Published to npm
 
 ---
 
