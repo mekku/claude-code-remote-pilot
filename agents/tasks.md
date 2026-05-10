@@ -1,6 +1,6 @@
 # Tasks
 
-## Current version: 0.7.5 (published)
+## Current version: 0.12.7 (published)
 
 ---
 
@@ -99,6 +99,10 @@
 - [x] bin/claude-pilot.js: REPL hint updated to include "exit to quit"
 - [x] ui.html: Buy Me a Coffee button script
 - [x] README.md: Buy Me a Coffee badge
+
+## In Progress (v0.12.8)
+- [x] lib/Watcher.js: support reset time format with timezone: "resets 6am (Asia/Bangkok)"
+- [ ] bump version and publish
 
 ---
 

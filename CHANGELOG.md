@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.8 — 2026-05-10
+
+### Fixed
+- **Reset time parsing with timezone**: limit reset messages now parse both legacy format (`resets at 2:00 AM`) and new Claude format (`resets 6am (Asia/Bangkok)`). Timezone is extracted and included in notifications and dashboard display.
+
+---
+
 ## 0.12.7 — 2026-05-10
 
 ### Fixed
