@@ -51,6 +51,16 @@ Navigation supports any number of sessions:
 - `1`–`9` — quick-select first 9 sessions
 - `Esc` — deselect
 
+## password command (v0.14.3)
+
+`password <value>` — sets the web dashboard password, saves to config via `config.saveWebPassword()`, and calls `webServer.setPassword()` on the running server (rotates the auth token; existing sessions must re-login).
+
+`password clear` — removes the password from the running server and clears it from config.
+
+`password` (bare) — prints current status: "set" or "not set", whether the dashboard is running.
+
+The startup tunnel wizard pre-fills `config.getWebPassword()` so the saved password is reused across restarts without re-entering it.
+
 ## spawn command flags (v0.13.0)
 
 `spawn <path> [name] [--opencode|--codex]` — the `--opencode` and `--codex` flags set the agent command for the new session. Default is `claude`.

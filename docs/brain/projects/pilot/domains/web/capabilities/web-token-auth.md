@@ -7,7 +7,8 @@ status: active
 confidence: source_supported
 source_files:
   - lib/WebServer.js
-last_reviewed: 2026-05-08
+last_reviewed: 2026-05-11
+version: 0.14.3
 tags:
   - type/capability
   - domain/web
@@ -20,10 +21,11 @@ Protects the web dashboard and API using a secret token passed as a URL query pa
 
 ## What it does
 
-- Generates a random `crypto.randomBytes(16).toString('hex')` token on first run
-- Saves the token to [[core-save-config|config]]
-- Checks incoming requests for `?token=<value>` or `Authorization: Bearer <value>` header
-- Returns HTTP 401 if token is missing or mismatched
+- Password-based: constructor receives a plaintext `password`; `_token = crypto.randomBytes(20).toString('hex')` is generated if a password is set. The password is checked at `POST /api/login`; success returns the ephemeral `_token`.
+- Checks subsequent requests for `?token=<value>` or `Authorization: Bearer <value>` header; returns HTTP 401 on mismatch.
+- Localhost connections bypass auth (no `X-Forwarded-For` / `CF-Connecting-IP` header) — tunneled requests still require a token.
+- `setPassword(pw)` — updates `this.password` and rotates `this._token` at runtime; existing browser sessions are forced to re-login. Called by the `password` REPL command.
+- Password is persisted via `config.saveWebPassword()` and loaded at startup via `config.getWebPassword()` so it survives process restarts.
 
 ## Entry point
 
