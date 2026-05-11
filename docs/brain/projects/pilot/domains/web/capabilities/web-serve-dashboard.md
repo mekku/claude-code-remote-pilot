@@ -7,7 +7,7 @@ status: active
 confidence: source_supported
 source_files:
   - lib/WebServer.js
-last_reviewed: 2026-05-09
+last_reviewed: 2026-05-11
 version: 0.11.1
 tags:
   - type/capability
@@ -54,6 +54,16 @@ Result is cached in `_usageCache` for 60 s to avoid repeated filesystem scans. A
 `GET /api/quota` — returns `{ sessionPct, sessionReset, weekPct, weekReset }` parsed from `claude /usage` TUI output. Implementation: spawns a hidden tmux session running `claude`, waits ~4 s for it to start, sends `/usage\n`, waits ~3 s for the TUI to render, captures the pane with `tmux capture-pane -p -J`, kills the session, then parses the text with regex. Result is cached for 5 minutes. Returns `null` immediately if cache is empty (first request triggers background fetch; subsequent polls pick up data). The `CLAUDE_PATH` env var overrides the `claude` binary location. Added in v0.13.0.
 
 SysInfoBar polls `/api/quota` every 5 minutes; on first load it sends the request to trigger the background fetch and receives `null` (no bars shown). After ~7 s the fetch completes and the next poll renders the `Ses XX%` and `Wk XX%` progress bars.
+
+## Debug log (v0.12.13)
+
+When the server starts it prints `Debug log: ~/.claude/pilot-web-debug.log` to the console. The log records:
+
+- `[INFO]` server start/stop with port and log path
+- `[REQ]` / `[RES]` every non-SSE request with sequential ID and response time in ms; responses >500 ms are flagged `*** SLOW ***`
+- `[SSE]` client connect/disconnect with running total
+- `[SLOW]` broadcast cycles that block the event loop >200 ms — includes client count and session count; useful for diagnosing API stalls after the first SSE client connects
+- `[ERR]` server-level errors
 
 ## Entry point
 

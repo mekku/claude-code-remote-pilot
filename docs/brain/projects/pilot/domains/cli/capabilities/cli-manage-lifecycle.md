@@ -7,7 +7,7 @@ status: active
 confidence: source_supported
 source_files:
   - bin/claude-pilot.js
-last_reviewed: 2026-05-08
+last_reviewed: 2026-05-11
 tags:
   - type/capability
   - domain/cli
@@ -24,7 +24,17 @@ Orchestrates start, stop, and removal of sessions from the CLI. Handles graceful
 - Delegates session creation to [[session-create|SessionManager.createSession]]
 - Calls [[session-remove-offline|SessionManager.removeOffline]] on user request
 - Shows an "exit hint" once auto-watch is running to tell the user how to re-enter the menu
-- On quit, tears down the web server and clears watchers
+- On quit, calls `webServer.stop()` then asks whether to kill sessions before calling `process.exit(0)`
+
+## Exit handling (v0.12.13)
+
+`handleExit()` is called by the `exit`/`quit` REPL command, `replRl.on('SIGINT')`, and `process.once('SIGTERM')`. It:
+
+1. Calls `watchStop()` if watch mode is active — stops the draw timer and keypress listener before prompting, preventing the watch table from wiping the exit question.
+2. Calls `manager._webServer?.stop()` to close the HTTP server and SSE connections.
+3. Asks "Kill all N sessions?" — empty or `N` answer keeps sessions running in tmux.
+
+A module-level `watchStop` variable holds a reference to the current `exitWatch` closure. It is set when `startWatch()` runs and cleared when `exitWatch()` runs.
 
 ## Entry point
 

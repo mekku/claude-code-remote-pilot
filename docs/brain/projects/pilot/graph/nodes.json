@@ -72,7 +72,7 @@
     "id": "cli-manage-lifecycle",
     "type": "capability",
     "name": "Manage Session Lifecycle",
-    "summary": "Orchestrate start/stop/remove sessions; handle graceful exit",
+    "summary": "Orchestrate start/stop/remove sessions; graceful exit stops watch mode and web server first; SIGINT/SIGTERM handled",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
@@ -128,7 +128,7 @@
     "id": "web-serve-dashboard",
     "type": "capability",
     "name": "Serve Dashboard",
-    "summary": "Serve embedded HTML dashboard with session status and version info; UI rendered from lib/ui.html",
+    "summary": "Serve embedded HTML dashboard with session status and version info; writes timestamped debug log to ~/.claude/pilot-web-debug.log with per-request timing and slow broadcast detection",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
@@ -246,7 +246,7 @@
     "id": "web-request-flow",
     "type": "flow",
     "name": "Web Request Flow",
-    "summary": "Token check → route → read config → response",
+    "summary": "Token check → route → read config → response; each request logged with timing; broadcast cycles block event loop — root cause of API stalls after SSE connects",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [

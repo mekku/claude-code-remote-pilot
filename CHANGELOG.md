@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.12.13 — 2026-05-11
+
+### Fixed
+- **Exit hangs leaving node process**: typing `exit` while watch mode was active caused the draw timer to wipe the exit prompt every second, leaving `readline.question()` waiting forever. Fixed by stopping watch mode (timer + keypress listener) at the start of `handleExit`. Also calls `webServer.stop()` before exit to close the HTTP server and SSE connections cleanly.
+- **Ctrl+C / SIGTERM now trigger graceful exit**: added `replRl.on('SIGINT')` and `process.once('SIGTERM')` handlers so pressing Ctrl+C at the REPL prompt asks the kill-sessions question instead of leaving the process in a zombie state.
+- **`telegram` command ReferenceError**: `telegram on|off` referenced `positional` which was block-scoped inside the `web` command case, throwing a `ReferenceError` on every invocation. Fixed to use `args[0]`.
+
+### Added
+- **Web server debug log** at `~/.claude/pilot-web-debug.log`: logs server start/stop, every API request with response time, SSE client connect/disconnect, and slow broadcast cycles (>200 ms). Path is printed to console when the web dashboard starts. Helps diagnose API endpoints getting stuck after SSE connects.
+
+---
+
 ## 0.12.11 — 2026-05-10
 
 ### Fixed

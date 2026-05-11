@@ -225,6 +225,8 @@ function renderWatchTable(allSessions, selectedIdx, webServer = null) {
   return lines.join('\n');
 }
 
+let watchStop = null;
+
 function startWatch(manager, rl) {
   let selectedIdx = -1;
   let allSessions = buildAllSessions(manager);
@@ -246,6 +248,7 @@ function startWatch(manager, rl) {
   }
 
   function exitWatch() {
+    watchStop = null;
     process.stdin.removeListener('keypress', onKeypress);
     stopTimer();
     process.stdout.write('\x1B[2J\x1B[0f');
@@ -253,6 +256,8 @@ function startWatch(manager, rl) {
     rl.write(null, { ctrl: true, name: 'u' });
     rl.prompt();
   }
+
+  watchStop = exitWatch;
 
   function redraw() {
     process.stdout.write('\x1B[2J\x1B[0f');
@@ -356,6 +361,8 @@ function startWatch(manager, rl) {
 // ─── exit handling ───────────────────────────────────────────────────────────
 
 async function handleExit(manager, rl) {
+  if (watchStop) watchStop();
+  manager._webServer?.stop();
   const sessions = manager.list();
   if (!sessions.length) {
     config.clearSessions();
@@ -536,6 +543,9 @@ ${HELP}`);
     prompt: 'claude-pilot> ',
   });
 
+  replRl.on('SIGINT', () => { handleExit(manager, replRl); });
+  process.once('SIGTERM', () => { handleExit(manager, replRl); });
+
   // Auto-enter watch if there are sessions to monitor
   const allAtStart = buildAllSessions(manager);
   if (allAtStart.length) {
@@ -655,7 +665,7 @@ ${HELP}`);
           break;
         }
         case 'telegram': {
-          const sub = positional[0];
+          const sub = args[0];
           if (sub === 'on') {
             telegram.enabled = true;
             console.log('  ✓ Telegram notifications enabled.');
