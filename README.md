@@ -7,7 +7,7 @@
 
 <a href="https://www.buymeacoffee.com/mekkunks"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="30"></a>
 
-A self-hosted supervisor and remote dashboard for running multiple Claude Code sessions — monitor, control, and queue work from anywhere.
+A self-hosted supervisor and remote dashboard for running multiple AI coding agent sessions — monitor, control, and queue work from anywhere. Supports **Claude Code**, **opencode**, **Codex CLI**, or any terminal agent.
 
 Start sessions on your machine, expose the dashboard through a secure tunnel, and manage everything from your phone while you're away.
 
@@ -44,8 +44,9 @@ It's a practical helper tool for people who run Claude Code for extended periods
 ## Features
 
 **Session management**
-- Spawn and supervise multiple Claude Code sessions, each in its own persistent tmux window
-- Auto-detect token limit states and resume automatically
+- Spawn and supervise multiple agent sessions (Claude Code, opencode, Codex CLI, or any command), each in its own persistent tmux window
+- **Multi-agent support** — choose the agent per session at launch; running/idle status tracked for all agents via output-change detection
+- Auto-detect token limit states and resume automatically (Claude Code only)
 - Show the reset clock and restart countdown when a session is waiting on a usage-limit reset
 - Sessions outlive the pilot process — restart the pilot without losing your work
 - **Terminal resize sync** — tmux pane dimensions automatically match your browser viewport so Claude's menus and borders render at the correct width
@@ -171,7 +172,11 @@ claude-remote-pilot
 
 - Node.js >= 18
 - tmux
-- Claude Code CLI (`npm install -g @anthropic-ai/claude-code`)
+- At least one terminal agent:
+  - **Claude Code**: `npm install -g @anthropic-ai/claude-code`
+  - **opencode**: `npm install -g opencode-ai`
+  - **Codex CLI**: `npm install -g @openai/codex`
+  - Or any other command-line agent
 
 The pilot will prompt you to install missing dependencies on first run.
 
@@ -203,7 +208,7 @@ sudo pacman -S tmux
 
 | Command | Description |
 |---|---|
-| `spawn <path> [name]` | Start Claude at a path. Name defaults to the directory name. |
+| `spawn <path> [name] [--opencode\|--codex]` | Start an agent at a path. Defaults to `claude`. Name defaults to the directory name. |
 | `list` | One-shot status of all sessions. |
 | `watch` | Live dashboard. Press a number to select, `q` to exit. |
 | `web [port] [host] [password] [--tunnel]` | Start the web dashboard. Defaults to `127.0.0.1:3742`. Add `--tunnel` to start a cloudflared public tunnel automatically. |
@@ -229,7 +234,7 @@ The dashboard shows all sessions (live and offline), lets you:
 - View terminal output with **full ANSI color rendering** (24-bit color, bold, dim, italic)
 - Send a message to Claude directly from the browser (Esc / ↵ / ^C / ^D key buttons included)
 - **Broadcast** a message to all active sessions at once
-- Spawn new sessions with a name, path, and optional initial prompt
+- Spawn new sessions with a name, path, agent (claude / opencode / codex / custom), and optional initial prompt
 - Kill / respawn sessions
 - See a live activity log of status transitions
 - Receive **browser desktop notifications** when any session needs input or hits a usage limit
@@ -504,6 +509,7 @@ When using the tunnel feature, always set a password. Anyone with the URL can co
 - [x] mobile UX
 - [x] git diff & commit tab in session detail view
 - [x] open in Finder button (macOS)
+- [x] opencode and Codex CLI support — running/idle detection for all agents
 - [ ] smarter retry logic
 - [ ] usage statistics and session timeline
 - [ ] pluggable notification providers
