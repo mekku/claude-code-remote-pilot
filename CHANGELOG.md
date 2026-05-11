@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.0 — 2026-05-11
+
+### Added
+- **File browser tab** — new `📁 Files` tab in session detail view; browse the session's working directory, navigate into subdirectories, and view file contents in a split pane. Directories sort before files; breadcrumb navigation with clickable path segments.
+- `GET /api/sessions/:name/files?path=<relpath>` — list directory entries (name, type, size, mtime); sorted dirs-first
+- `GET /api/sessions/:name/files/content?path=<relpath>` — read file content (UTF-8); returns `{ binary: true }` for binary files, `{ tooBig: true }` for files over 500 KB
+
+### Security
+- Both endpoints are behind the existing token auth gate (same `_checkAuth` as all other API routes — no new surface)
+- **Path traversal protection**: `path.resolve(cwd, rel)` result is validated to start with `cwd + path.sep`; any attempt to escape the session directory (e.g. `../../etc/passwd`) returns HTTP 400
+
+---
+
 ## 0.13.2 — 2026-05-11
 
 ### Added

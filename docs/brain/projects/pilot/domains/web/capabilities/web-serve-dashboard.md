@@ -8,7 +8,7 @@ confidence: source_supported
 source_files:
   - lib/WebServer.js
 last_reviewed: 2026-05-11
-version: 0.13.1
+version: 0.14.0
 tags:
   - type/capability
   - domain/web

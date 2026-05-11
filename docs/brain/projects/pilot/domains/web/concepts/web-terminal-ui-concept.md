@@ -8,7 +8,7 @@ confidence: source_supported
 source_files:
   - lib/ui.html
 last_reviewed: 2026-05-11
-version: 0.13.0
+version: 0.14.0
 tags:
   - type/concept
   - domain/web
@@ -23,7 +23,7 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 
 - **ANSI rendering** — `ansiToHtml()` converts colour/formatting escapes to `<span>` elements with inline styles; falls back to stripped plain text on error.
 - **Click-to-focus** — clicking anywhere on the terminal body focuses the hidden input so keystrokes are forwarded to tmux. Guard: only steals focus when `window.getSelection().toString()` is empty, so click-drag text selection is preserved.
-- **Tab-switching layout** — `SessionDetailScreen` has an `activeTab` state and a `.tab-bar`. On desktop: two tabs (`terminal` | `git`); terminal tab shows `detail-grid` (terminal + sidebar with Session Info and `QueuePanel`), git tab shows `GitPanel` full-width. On mobile: four tabs (`terminal` | `info` | `queue` | `git`); terminal tab shows terminal full-width with no sidebar; Info tab shows action buttons + session info + label; Queue tab shows `QueuePanel`. `activeTab` resets to `'terminal'` whenever the selected session changes.
+- **Tab-switching layout** — `SessionDetailScreen` has an `activeTab` state and a `.tab-bar`. On desktop: three tabs (`terminal` | `git` | `files`); terminal tab shows `detail-grid` (terminal + sidebar with Session Info and `QueuePanel`), git tab shows `GitPanel` full-width, files tab shows `FileBrowserPanel` full-width. On mobile: four tabs (`terminal` | `info` | `queue` | `git`) — the files tab is desktop-only. `activeTab` resets to `'terminal'` whenever the selected session changes.
 - **Mobile full-screen terminal** — on `isMobile` (`window.innerWidth < 768`), terminal height is `calc(100dvh - 160px)` (uses dynamic viewport height to account for mobile browser chrome). The `.terminal-footer` gets the `mobile-fixed` class (`position:fixed; bottom:0; left:0; right:0; z-index:50`) so the input stays visible while scrolling output. The `.terminal-body` gets `paddingBottom:130` to avoid content hidden behind the fixed footer. Action buttons are hidden via `.detail-actions{display:none}` on mobile and surfaced in the Info tab instead. The detail-header (title + path bar) and the `.terminal-header` (colored dots + session name + font-size controls) are both hidden on mobile via CSS to maximise terminal display area.
 - **Font size controls** — `A-` / `A+` buttons in the terminal header adjust `termFontSize` state (range 10–18 px, default 12). Value is persisted to `localStorage` under key `pilot-term-fsz` and restored on mount. Applied as inline `fontSize` on the terminal body. The resize-sync probe also uses `termFontSize` so column/row calculations stay accurate after a font change (`termFontSize` is in the resize effect dependency array).
 - **Queue sidebar** — on desktop, `QueuePanel` is rendered inside `.detail-sidebar` (right column of the detail grid), beneath Session Info. The sidebar is `flex-direction:column; overflow-y:auto` so a long queue list scrolls without overflowing the layout.
@@ -51,6 +51,17 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 ## Agent dropdown (v0.13.0)
 
 The Create Session screen agent dropdown includes `claude`, `opencode`, and `codex (OpenAI)`. Selecting opencode or codex shows a hint: "Running/idle detection uses output hash polling. Limit auto-resume and token tracking are claude-only." The hint no longer says status indicators are claude-only (as of v0.13.0 they work for all agents via hash-change detection).
+
+## File browser panel (v0.14.0)
+
+`FileBrowserPanel` component provides a read-only file browser for the session's working directory. Accessed via the `📁 Files` tab (desktop only).
+
+- **Directory listing** — fetches `GET /api/sessions/:name/files?path=<rel>` on mount and whenever `browsePath` changes; response is `{ entries: [{name, type, size, mtime}], path }`.
+- **File viewing** — clicking a file fetches `GET /api/sessions/:name/files/content?path=<rel>`; response is `{ content }` for text, `{ binary, size }` for binary files, or `{ tooBig, size }` for files >500KB.
+- **Breadcrumb navigation** — path segments above the list are clickable to navigate up; clicking a directory entry drills down.
+- **Split view** — when a file is open the panel is split: 260 px directory list on the left, scrollable file viewer on the right. Closing the viewer returns to full-width list.
+- **Binary/size guards** — binary files and oversized files display informational messages rather than raw content.
+- **Path traversal protection** — `_safePath()` in WebServer.js resolves the requested relative path with `path.resolve(cwd, rel)` and rejects any result that escapes the session's working directory (resolved path must equal `cwd` or start with `cwd + path.sep`).
 
 ## Non-obvious details
 
