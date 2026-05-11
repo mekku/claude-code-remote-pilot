@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.1 — 2026-05-11
+
+### Fixed
+- **Agent badge always showing "claude"** — `saveSessions()` now persists the `command` field; `SessionManager.adopt()` accepts and stores a `command` parameter; re-adopt and auto-discover paths pass the command from history. Previously, any session re-adopted at startup had no `command` field, causing `detectAgentType()` to default to `'claude'`.
+
 ## 0.14.0 — 2026-05-11
 
 ### Added

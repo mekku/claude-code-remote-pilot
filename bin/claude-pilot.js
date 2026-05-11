@@ -453,7 +453,7 @@ ${HELP}`);
     const recover = await question(setupRl, '  Re-adopt and watch them? (Y/n) ');
     if (isYes(recover)) {
       savedSessions.forEach(s => {
-        try { manager.adopt(s.name, s.path); console.log(`  ✓ Re-adopted "${s.name}"`); }
+        try { manager.adopt(s.name, s.path, s.command || 'claude'); console.log(`  ✓ Re-adopted "${s.name}"`); }
         catch (e) { console.log(`  ✗ Could not adopt "${s.name}": ${e.message}`); }
       });
       console.log('');
@@ -471,11 +471,14 @@ ${HELP}`);
       untracked.forEach(n => console.log(`    ${n}`));
       const adoptAns = await question(setupRl, '  Adopt and watch these? (y/N) ');
       if (adoptAns === 'y' || adoptAns === 'yes') {
+        const history = config.getHistory();
         for (const sessionName of untracked) {
           try {
             let sessionPath = '';
             try { sessionPath = execSync(`tmux display-message -p -t "${sessionName}" '#{pane_current_path}'`, { encoding: 'utf8' }).trim(); } catch {}
-            manager.adopt(sessionName, sessionPath);
+            const histEntry = history.find(h => h.name === sessionName);
+            const sessionCommand = histEntry?.command || 'claude';
+            manager.adopt(sessionName, sessionPath, sessionCommand);
             console.log(`  ✓ Adopted "${sessionName}"${sessionPath ? ` at ${sessionPath}` : ''}`);
           } catch (e) { console.log(`  ✗ ${e.message}`); }
         }
