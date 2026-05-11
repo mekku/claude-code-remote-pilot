@@ -38,9 +38,9 @@ The dashboard terminal is a React SPA embedded in `lib/ui.html`. It polls sessio
 - **Emoji preset picker** — `EmojiPicker` component renders a 12-button grid (`EMOJI_PRESETS`) plus a free-text fallback input. Used in the desktop sidebar "Label" section and the mobile Info tab. Clicking a preset toggles it; free-text supports any custom emoji up to 8 characters. Replaces the old single `<input>` field.
 - **Active sort mode** — default sort is `'active'`: sessions are bucketed by `ACTIVE_GROUP_ORDER` (needs-response and running both get rank 0, idle rank 1, limit/offline/ended rank 2). Within rank 0 (active), sessions sort by name. Within rank 1 (idle), sessions sort by `lastActiveAt` descending — most recently active appears first. Prevents cards from jumping positions when a session flips between `running` and `needs-response`.
 
-## Column count selector (v0.13.2)
+## Column count selector (v0.13.2, extended v0.14.2)
 
-`ColsControl` component renders `Cols: Auto · 1 · 2 · 3 · 4` in the dashboard section header. Selecting a number sets `gridTemplateColumns: repeat(N, 1fr)` as an inline style on the `.session-cards` div; `Auto` (value `0`) removes the inline style so the CSS responsive `auto-fill` takes over. State is stored in `localStorage` under `ccp-cols` and restored on page load (validated against `[0,1,2,3,4]`). The control and the inline style are both gated behind `!isMobile` — mobile always uses the single-column CSS default. `DashboardScreen` owns a local `isMobile` state (same resize-listener pattern as `SessionDetailScreen`) to drive this gate.
+`ColsControl` component renders `Cols: Auto · 1 · 2 · 3 · 4 · 6 · 8` in the dashboard section header. Selecting a number sets `gridTemplateColumns: repeat(N, 1fr)` as an inline style on the `.session-cards` div; `Auto` (value `0`) removes the inline style so the CSS responsive `auto-fill` takes over. State is stored in `localStorage` under `ccp-cols` and restored on page load (validated against `[0,1,2,3,4]`). The control and the inline style are both gated behind `!isMobile` — mobile always uses the single-column CSS default. `DashboardScreen` owns a local `isMobile` state (same resize-listener pattern as `SessionDetailScreen`) to drive this gate.
 
 ## Agent badge (v0.13.1)
 
