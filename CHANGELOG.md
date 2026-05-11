@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.5 — 2026-05-11
+
+### Changed
+- **Mobile file browser** — file browser is now embedded as a section inside the mobile Info tab (scroll down past session info). The Files tab is desktop-only; on mobile, files are accessible from Info.
+
 ## 0.14.4 — 2026-05-11
 
 ### Changed

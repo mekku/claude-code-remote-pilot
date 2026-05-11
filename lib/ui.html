@@ -1511,7 +1511,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
         {isMobile && <button className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>ℹ Info</button>}
         {isMobile && <button className={`tab-btn ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => setActiveTab('queue')}>≡ Queue</button>}
         <button className={`tab-btn ${activeTab === 'git' ? 'active' : ''}`} onClick={() => setActiveTab('git')}>± Git</button>
-        <button className={`tab-btn ${activeTab === 'files' ? 'active' : ''}`} onClick={() => setActiveTab('files')}>📁 Files</button>
+        {!isMobile && <button className={`tab-btn ${activeTab === 'files' ? 'active' : ''}`} onClick={() => setActiveTab('files')}>📁 Files</button>}
       </div>
 
       {activeTab === 'terminal' && (() => {
@@ -1688,6 +1688,12 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
               </div>
             </div>
           </div>
+          <div className="card" style={{ marginTop: 12, padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--border)' }}><h3 style={{ margin: 0 }}>📁 Files</h3></div>
+            <div style={{ height: 400, display: 'flex', flexDirection: 'column' }}>
+              <FileBrowserPanel session={session} />
+            </div>
+          </div>
         </div>
       )}
 
@@ -1695,7 +1701,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
 
       {activeTab === 'git' && <GitPanel session={session} fullWidth />}
 
-      {activeTab === 'files' && (
+      {activeTab === 'files' && !isMobile && (
         <div style={{ height: 'calc(100vh - 260px)', minHeight: 300, display: 'flex', flexDirection: 'column', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
           <FileBrowserPanel session={session} />
         </div>

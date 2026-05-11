@@ -71,7 +71,7 @@ It's a practical helper tool for people who run Claude Code for extended periods
 
 **Mobile**
 - Full-screen terminal with input bar fixed to the bottom of the viewport — stays visible while scrolling output
-- Four-tab layout on mobile: Terminal · Info · Queue · Git — terminal is always full width
+- Four-tab layout on mobile: Terminal · Info · Queue · Git — terminal is always full width; the Info tab includes a **file browser** section at the bottom
 - **Font size controls** (`A-` / `A+`) in the terminal header; preference saved and restored across sessions
 
 **Message queue**
@@ -291,7 +291,7 @@ Each active session card on the dashboard now shows:
 
 ### Git tab
 
-Each session detail view has two tabs: **Terminal** and **Git**. The Git tab gives you a full-width interface for reviewing and committing changes in the session's working directory:
+Each session detail view has three tabs on desktop: **Terminal**, **Git**, and **📁 Files**. On mobile, the Files browser is embedded in the Info tab. The Git tab gives you a full-width interface for reviewing and committing changes in the session's working directory:
 
 - **File list** (left column) — modified (`~`), untracked (`+`), and deleted (`−`) files with checkboxes. "Select all / Deselect all" at the top.
 - **Diff viewer** (right column) — coloured unified diff for the selected file. Green additions, red removals. Scrollable horizontally for wide diffs.
