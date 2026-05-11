@@ -1,6 +1,25 @@
 # Tasks
 
-## Current version: 0.13.0 (published)
+## Current version: 0.14.0 (published)
+
+## Completed (v0.14.0)
+- [x] lib/WebServer.js: _safePath() helper — path.resolve + startsWith guard prevents ../ traversal
+- [x] lib/WebServer.js: GET /api/sessions/:name/files — directory listing endpoint
+- [x] lib/WebServer.js: GET /api/sessions/:name/files/content — file content endpoint (500KB limit, binary detection)
+- [x] lib/ui.html: FileBrowserPanel component — breadcrumb nav, split list/viewer, binary/size guards
+- [x] lib/ui.html: Files tab added to SessionDetailScreen (desktop only, 3rd tab after git)
+- [x] KB updated, published to npm, pushed
+
+## Completed (v0.13.2)
+- [x] lib/ui.html: ColsControl — Cols: Auto/1/2/3/4 selector in dashboard header (desktop only)
+- [x] localStorage under key ccp-cols; inline gridTemplateColumns style on .session-cards
+- [x] isMobile gate hides control and skips cardsStyle on mobile
+
+## Completed (v0.13.1)
+- [x] lib/ui.html: AgentBadge component — orange (claude), blue (opencode), green (codex), muted (generic)
+- [x] lib/ui.html: auto-yes gated to claude-only sessions
+- [x] lib/WebServer.js: offline sessions now include command field in _buildAllSessions()
+- [x] KB updated, published, pushed
 
 ## Completed (v0.13.0)
 - [x] lib/Watcher.js: detectAgentType() function — strips path/exe suffix, returns 'claude'/'opencode'/'codex'/'generic'
