@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.2 — 2026-05-11
+
+### Changed
+- **Column selector** — added `6` and `8` options to `ColsControl`; selector now shows `Auto · 1 · 2 · 3 · 4 · 6 · 8`
+
 ## 0.14.1 — 2026-05-11
 
 ### Fixed
