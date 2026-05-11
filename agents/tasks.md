@@ -1,6 +1,31 @@
 # Tasks
 
-## Current version: 0.14.0 (published)
+## Current version: 0.14.4 (published)
+
+## Completed (v0.14.4)
+- [x] README: added password and resume commands to commands table
+- [x] README: added password persistence + runtime-change examples to tunnel section
+- [x] Published to npm (README must be updated before publish)
+
+## Completed (v0.14.3)
+- [x] lib/config.js: saveWebPassword() / getWebPassword()
+- [x] lib/WebServer.js: setPassword(pw) — updates password and rotates auth token at runtime
+- [x] bin/claude-pilot.js: password REPL command (set/clear/status); startup pre-fills saved password
+- [x] KB updated, published, pushed
+
+## Completed (v0.14.2)
+- [x] lib/ui.html: ColsControl — added 6 and 8 to column options (Auto/1/2/3/4/6/8)
+- [x] localStorage validation updated to include 6 and 8
+- [x] KB updated, published, pushed
+
+## Completed (v0.14.1)
+- [x] lib/config.js: saveSessions() now persists command field
+- [x] lib/SessionManager.js: adopt() accepts command parameter, stores in session object
+- [x] bin/claude-pilot.js: re-adopt passes s.command; auto-discover looks up command from history
+- [x] Fix: agent badge was always showing "claude" for adopted/restarted sessions
+- [x] KB updated, published, pushed
+
+## Completed (v0.14.0)
 
 ## Completed (v0.14.0)
 - [x] lib/WebServer.js: _safePath() helper — path.resolve + startsWith guard prevents ../ traversal
