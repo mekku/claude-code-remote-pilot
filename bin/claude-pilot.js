@@ -412,6 +412,7 @@ const HELP = `
   attach <name>                              Open tmux session in this terminal
   kill <name>                                Stop a session
   resume [message]                           Show or set the message sent after a limit resets
+  password [value|clear]                     Set or clear the web dashboard password
   telegram on|off                            Enable or disable Telegram notifications
   help                                       Show this help
   exit                                       Quit pilot  (asks whether to kill sessions)
@@ -507,7 +508,7 @@ ${HELP}`);
   let bindLan = false;
   let useTunnel = false;
   if (openWeb) {
-    let webPassword = null;
+    let webPassword = config.getWebPassword();
 
     bindLan = await yesNo(setupRl, 'Expose on LAN (all interfaces)?', !!prefs.lan);
     const webHost = bindLan ? '0.0.0.0' : '127.0.0.1';
@@ -521,11 +522,15 @@ ${HELP}`);
 
     if (useTunnel) {
       console.log('\n  ⚠  Public tunnel exposes your dashboard to the internet.');
-      const pwAns = await questionRaw(setupRl, '  Set a password (strongly recommended, Enter to skip): ');
+      const pwPrompt = webPassword
+        ? `  Change password (Enter to keep current): `
+        : `  Set a password (strongly recommended, Enter to skip): `;
+      const pwAns = await questionRaw(setupRl, pwPrompt);
       if (pwAns) {
         webPassword = pwAns;
+        config.saveWebPassword(webPassword);
         console.log('  Password protection enabled.\n');
-      } else {
+      } else if (!webPassword) {
         console.log('  ⚠  No password set — anyone with the URL can control your sessions!\n');
       }
     }
@@ -713,6 +718,28 @@ ${HELP}`);
             const configured = telegram.token ? 'configured' : 'not configured';
             console.log(`  Telegram: ${state}  (${configured})`);
             console.log('  Usage: telegram on | telegram off');
+          }
+          break;
+        }
+        case 'password': {
+          const sub = args[0];
+          const ws = manager._webServer;
+          if (!sub) {
+            if (ws) {
+              console.log(`  Web password: ${ws.password ? 'set' : 'not set'}`);
+            } else {
+              const saved = config.getWebPassword();
+              console.log(`  Saved password: ${saved ? 'set' : 'not set'} (web dashboard not running)`);
+            }
+            console.log('  Usage: password <newpassword> | password clear');
+          } else if (sub === 'clear') {
+            config.saveWebPassword(null);
+            if (ws) { ws.setPassword(null); console.log('  ✓ Password removed from running dashboard.'); }
+            else console.log('  ✓ Saved password cleared.');
+          } else {
+            config.saveWebPassword(sub);
+            if (ws) { ws.setPassword(sub); console.log('  ✓ Password updated on running dashboard. All sessions will need to log in again.'); }
+            else console.log('  ✓ Password saved. It will be used when the web dashboard next starts.');
           }
           break;
         }

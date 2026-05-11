@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.3 — 2026-05-11
+
+### Added
+- **`password` REPL command** — `password <value>` sets the web dashboard password, `password clear` removes it, bare `password` shows current status. Password is persisted to config and survives restarts.
+- `WebServer.setPassword(pw)` — updates password and rotates the auth token at runtime; existing browser sessions are forced to re-login.
+- Web dashboard setup now pre-fills the previously saved password so it persists across restarts without re-entering it.
+
 ## 0.14.2 — 2026-05-11
 
 ### Changed
