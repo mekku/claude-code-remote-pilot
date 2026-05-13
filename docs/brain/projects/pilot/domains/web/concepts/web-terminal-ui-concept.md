@@ -7,8 +7,8 @@ status: active
 confidence: source_supported
 source_files:
   - lib/ui.html
-last_reviewed: 2026-05-11
-version: 0.14.0
+last_reviewed: 2026-05-13
+version: 0.14.7
 tags:
   - type/concept
   - domain/web
@@ -62,6 +62,16 @@ The Create Session screen agent dropdown includes `claude`, `opencode`, and `cod
 - **Split view** — when a file is open the panel is split: 260 px directory list on the left, scrollable file viewer on the right. Closing the viewer returns to full-width list.
 - **Binary/size guards** — binary files and oversized files display informational messages rather than raw content.
 - **Path traversal protection** — `_safePath()` in WebServer.js resolves the requested relative path with `path.resolve(cwd, rel)` and rejects any result that escapes the session's working directory (resolved path must equal `cwd` or start with `cwd + path.sep`).
+
+## Sidebar session list (v0.14.7)
+
+The `Sidebar` component now renders a "Sessions" sub-section below the Workspace nav links. All sessions (active and offline) are listed sorted by `'active'` order. Each row has:
+- A 7 px colored status dot: green (`running`), warning-yellow (`needs-response` / `limit`), blue (`idle`), muted (offline/ended)
+- The dot blinks via `dot-blink` keyframe animation when status is `needs-response`
+- Session emoji (if set) rendered at 13 px
+- Truncated session name (`text-overflow: ellipsis`)
+
+Clicking any row calls `onNavigate('detail', session)` — navigates directly to that session's detail screen and closes the mobile overlay. The active session (currently in detail view) gets `background: var(--accent-soft)` highlight. The `Sidebar` receives `sessions` and `selectedSessionName` props from `App`; `sessionDotColor(status)` maps status to CSS variable.
 
 ## Non-obvious details
 

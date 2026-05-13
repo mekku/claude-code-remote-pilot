@@ -7,8 +7,8 @@ status: active
 confidence: source_supported
 source_files:
   - lib/Watcher.js
-last_reviewed: 2026-05-11
-version: 0.13.0
+last_reviewed: 2026-05-13
+version: 0.14.7
 tags:
   - type/capability
   - domain/session
@@ -50,6 +50,10 @@ Uses `_checkGeneric(text)` — hash-change detection against the last 2 000 char
 
 The 30-second delay for `needs-response` uses `_needsResponseTimer` (a `setTimeout` handle stored on the Watcher instance). The timer is cleared on any transition away from `needs-response` — so if the user responds immediately, no notification is sent. `_lastNeedsResponseNotify` timestamp prevents repeated pings within a 60-second window when a prompt lingers.
 
+### Inline keyboard buttons on needs-response (v0.14.7)
+
+When the 30-second timer fires and the session is still `needs-response`, the Watcher calls `menuOptions.detect(this._capture())` on the current pane output. If numbered options are found (≥2 sequential options starting at 1), `notifier.sendWithButtons` is called instead of `notifier.send`. Each option becomes a Telegram inline button with `callback_data: "menu:<sessionName>:<num>"`. The polling loop in `notifier.js` receives button taps and routes them to `SessionManager.handleTelegramCallback`.
+
 ## Limit handling
 
 `_handleLimit()` is called when `LIMIT_RE` matches the last 15 non-empty lines. It:
@@ -71,5 +75,6 @@ The 30-second delay for `needs-response` uses `_needsResponseTimer` (a `setTimeo
 - [[session|Session domain]]
 - [[session-resume|Auto-Resume]]
 - [[core-send-notification|Send Notification]]
+- [[core-menu-options|Menu Options Parser]]
 - [[session-tmux-concept|Tmux Session Concept]]
 - [[session-auto-resume-concept|Auto-Resume Concept]]

@@ -1,11 +1,12 @@
 {
-  "lib/ui.html": "3a803c68ec36345c9dadfc68f1c2ef19491f9bc60b9a7f2b06436ea612ce8a06",
-  "bin/claude-pilot.js": "2dc44a19a9d1f3a6f8e5971da736402f5ff19bd1d1db0377378f96e0c2350fa3",
-  "lib/SessionManager.js": "47791c8ec23abff72e19fce14b956d79ce9c42c6b653869099a25d090317985e",
-  "lib/Watcher.js": "535aeeb2e63974db4b101a5825c02e12e72bd118b03fe147bcbf3e8d5ca2cc45",
-  "lib/WebServer.js": "72adeccd0132d2ec993f1186db85a3920c52bc67179976b2aad5a2515a23cf09",
+  "lib/ui.html": "5592704934429c5a80e3c92fab2d3959bd92a69580f5cd9c71890c08990db920",
+  "bin/claude-pilot.js": "7606d0935598533c9fb52df8516fb676241fea0b97652f3185b0be592b098791",
+  "lib/SessionManager.js": "5d2f7283e4e63d293dfb912de55e42741cf129b4b09e0961b539e131edff2641",
+  "lib/Watcher.js": "9cc803b925dca09635af61fe299fc8d11aa0010c6f1b61edb58051dc5f024872",
+  "lib/WebServer.js": "4de53f520c92066f2fd9bb4dc9f350f806c6f8f4ed0b7024b5b023150efbaa4b",
+  "lib/menuOptions.js": "f002eff7d034e4e20b4a508b0f9e17594dc85d4815b663c3f9c900545a450466",
+  "lib/notifier.js": "c05168d9972307d90f2b513e6e9e87cf0914465cbe7e9ec882f3b5ff0577f1e1",
   "lib/config.js": "34ada4f9bd5eb5397273e3f629d9ecdaba8a61443ca7c21cd99b5914cadeee1b",
-  "lib/notifier.js": "114656fa674846a9704b7fe7a5bd01c2a48634e0dca2bf3cc2af4828f70b6c83",
   "test/config.test.js": "915ffcdd9e22e2c282d813ffe02a3dd1945f732c9fafbbc7ff3e2c85a8d6e562",
   "test/webserver.test.js": "50c8b96ff1d1cd44fb0dbd2f641a01b52cf97a1548bb37ba06e26931a0f74c66",
   "package.json": "5afbad5b53837672825545145d0640e846b7807ef7144e1a47794e1322c6767b"

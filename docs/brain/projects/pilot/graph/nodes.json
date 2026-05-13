@@ -208,11 +208,22 @@
     "id": "core-send-notification",
     "type": "capability",
     "name": "Send Notification",
-    "summary": "Send Telegram message via curl on session events; silent if unconfigured",
+    "summary": "Send Telegram messages (plain or with inline keyboard buttons) via Node https; long-poll callback loop routes button taps back to tmux; silent if unconfigured",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
       "lib/notifier.js"
+    ]
+  },
+  {
+    "id": "core-menu-options",
+    "type": "capability",
+    "name": "Menu Options Parser",
+    "summary": "Shared parser that extracts numbered choice options from raw terminal output; used by Watcher (Telegram buttons) and WebServer (dashboard CTA strip)",
+    "status": "active",
+    "confidence": "source_supported",
+    "source_files": [
+      "lib/menuOptions.js"
     ]
   },
   {
@@ -305,7 +316,7 @@
     "id": "core-notification-concept",
     "type": "concept",
     "name": "Telegram Notification Concept",
-    "summary": "curl-based, opt-in, fail-silent; no SDK dependency",
+    "summary": "Node https-based, opt-in, fail-silent; supports plain messages and inline keyboard buttons; long-poll loop with stale-offset skip and 409 back-off",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
@@ -327,7 +338,7 @@
     "id": "web-terminal-ui-concept",
     "type": "concept",
     "name": "Web Terminal UI Concept",
-    "summary": "React SPA in lib/ui.html renders ANSI output, handles click-to-focus, and guards text selection before stealing input focus",
+    "summary": "React SPA in lib/ui.html renders ANSI output, handles click-to-focus, guards text selection, and shows a sidebar session list with colored status dots for quick navigation",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
