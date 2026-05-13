@@ -383,6 +383,7 @@ function startWatch(manager, rl) {
 
 async function handleExit(manager, rl) {
   if (watchStop) watchStop();
+  notifier.stopPolling();
   manager._webServer?.stop();
   const sessions = manager.list();
   if (!sessions.length) {
@@ -441,6 +442,14 @@ ${HELP}`);
 
   const cfg = config.load();
   const manager = new SessionManager({ telegram, resumeCommand: cfg.resumeCommand });
+
+  // Start Telegram callback polling so inline keyboard buttons route back to tmux
+  if (telegram.token) {
+    notifier.startPolling(telegram.token, (cbq) => {
+      notifier.answerCallback(telegram.token, cbq.id);
+      manager.handleTelegramCallback(cbq.data || '');
+    });
+  }
 
   // Recover sessions from previous run
   const savedSessions = (cfg.sessions || []).filter(s => {

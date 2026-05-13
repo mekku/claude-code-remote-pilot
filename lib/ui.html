@@ -92,6 +92,15 @@
   .nav-count{margin-left:auto;font-size:11px;font-family:var(--font-mono);color:var(--muted);background:var(--surface-hover);padding:1px 6px;border-radius:10px;min-width:20px;text-align:center;}
   .sidebar-footer{padding:12px 10px;border-top:1px solid var(--border);margin-top:auto;}
 
+  .nav-session-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;color:var(--fg-secondary);transition:background 0.15s,color 0.15s;user-select:none;border:none;background:none;width:100%;text-align:left;min-width:0;}
+  .nav-session-item:hover{background:var(--surface-hover);color:var(--fg);}
+  .nav-session-item.active{background:var(--accent-soft);color:var(--fg);font-weight:600;}
+  .nav-session-avatar{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--surface-hover);line-height:1;}
+  .nav-session-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .nav-session-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  @keyframes dot-blink{0%,100%{opacity:1}50%{opacity:0.2}}
+  .nav-session-dot.blink{animation:dot-blink 1s ease-in-out infinite;}
+
   .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
   .mobile-header{height:var(--header-h);border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;}
   .menu-btn{background:none;border:none;cursor:pointer;color:var(--fg);padding:6px;display:flex;}
@@ -634,8 +643,20 @@ function StatusPill({ status }) {
   );
 }
 
+/* --- Status dot color for sidebar --- */
+function sessionDotColor(status) {
+  switch (status) {
+    case 'running':        return 'var(--success)';
+    case 'needs-response': return 'var(--warning)';
+    case 'limit':          return 'var(--warning)';
+    case 'idle':           return 'var(--idle)';
+    default:               return 'var(--muted)';
+  }
+}
+
 /* --- Sidebar --- */
-function Sidebar({ currentScreen, onNavigate, sessionCount, open, onClose, connected }) {
+function Sidebar({ currentScreen, onNavigate, sessionCount, sessions = [], selectedSessionName, open, onClose, connected }) {
+  const sortedSessions = sortSessions(sessions, 'active');
   return (
     <>
       <div className={`sidebar-overlay ${open ? 'open' : ''}`} onClick={onClose} />
@@ -659,6 +680,30 @@ function Sidebar({ currentScreen, onNavigate, sessionCount, open, onClose, conne
           <button className={`nav-item ${currentScreen === 'create' ? 'active' : ''}`} onClick={() => { onNavigate('create'); onClose(); }}>
             {Icons.plus} New Session
           </button>
+
+          {sortedSessions.length > 0 && (
+            <>
+              <div className="nav-section-label" style={{ marginTop: 16 }}>Sessions</div>
+              {sortedSessions.map(s => (
+                <button
+                  key={s.name}
+                  className={`nav-session-item${selectedSessionName === s.name && currentScreen === 'detail' ? ' active' : ''}`}
+                  onClick={() => { onNavigate('detail', s); onClose(); }}
+                  title={s.path || s.name}
+                >
+                  <span
+                    className={`nav-session-dot${s.status === 'needs-response' ? ' blink' : ''}`}
+                    style={{ background: sessionDotColor(s.status) }}
+                  />
+                  {s.emoji
+                    ? <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0 }}>{s.emoji}</span>
+                    : null
+                  }
+                  <span className="nav-session-name">{s.name}</span>
+                </button>
+              ))}
+            </>
+          )}
         </nav>
         <div className="sidebar-footer">
           <div style={{ padding: '4px 8px', fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -2494,7 +2539,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Sidebar currentScreen={screen} onNavigate={navigate} sessionCount={sessions.length} open={sidebarOpen} onClose={() => setSidebarOpen(false)} connected={connected} />
+      <Sidebar currentScreen={screen} onNavigate={navigate} sessionCount={sessions.length} sessions={sessions} selectedSessionName={selectedSession?.name} open={sidebarOpen} onClose={() => setSidebarOpen(false)} connected={connected} />
       <div className="main">
         <div className="mobile-header">
           <button className="menu-btn" onClick={() => setSidebarOpen(true)}>{Icons.menu}</button>
