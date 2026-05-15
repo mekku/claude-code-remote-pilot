@@ -1,6 +1,6 @@
 # Claude Code Pilot — Tasks
 
-## Phase 1 — Current MVP
+## Phase 1 — Current MVP ✓
 
 ### Session Persistence
 
@@ -17,58 +17,59 @@
 
 ---
 
-## Phase 2 — Node Refactor
+## Phase 2 — Node Refactor ✓
 
 ### Core Runtime
 
-- [ ] migrate bash watcher logic into Node.js
-- [ ] create SessionManager
-- [ ] create Session abstraction
+- [x] migrate bash watcher logic into Node.js
+- [x] create SessionManager
+- [x] session lifecycle handling (spawn, adopt, kill, respawn, killAll)
+- [x] persistent config loading
+- [ ] create Session abstraction (class)
 - [ ] create SessionAdapter interface
 - [ ] implement TmuxSessionAdapter
-- [ ] session lifecycle handling
-- [ ] persistent config loading
 - [ ] structured logging
 - [ ] event emitter system
 
 ---
 
-## Phase 3 — Multi Session Support
+## Phase 3 — Multi Session Support ✓
 
 ### Session Management
 
-- [ ] support multiple concurrent Claude sessions
-- [ ] session registry
-- [ ] session metadata persistence
-- [ ] session status tracking
-- [ ] active/inactive state
-- [ ] limit/waiting/running states
-- [ ] restart session handling
-- [ ] stale session cleanup
+- [x] support multiple concurrent Claude sessions
+- [x] session registry (SessionManager.sessions Map)
+- [x] session metadata persistence (emoji, color labels via config)
+- [x] session status tracking
+- [x] active/inactive state
+- [x] limit/waiting/running/needs-response/idle states
+- [x] restart session handling (respawn)
+- [x] stale session cleanup (offline history)
 
 ---
 
-## Phase 4 — Detection Engine
+## Phase 4 — Detection Engine (partial)
 
 ### Detectors
 
-- [ ] pluggable detector system
-- [ ] usage limit detector
-- [ ] reset time parser
-- [ ] permission request detector
-- [ ] stuck/no-output detector
+- [x] pluggable agent type detection (claude / opencode / codex / generic)
+- [x] usage limit detector
+- [x] reset time parser (IANA timezone-aware)
+- [x] permission request detector (RESPONSE_RE)
+- [x] stuck/no-output detector (hash-change idle detection for generic agents)
 - [ ] build failure detector
 - [ ] test failure detector
 - [ ] Claude crash detector
 
 ---
 
-## Phase 5 — Notification System
+## Phase 5 — Notification System (partial)
 
 ### Providers
 
-- [ ] notification abstraction
-- [ ] Telegram provider
+- [x] Telegram provider (Node https, no SDK)
+- [x] Telegram inline keyboard buttons for needs-response (v0.14.7)
+- [x] Telegram callback polling loop with stale-offset skip and 409 back-off (v0.14.7)
 - [ ] Discord provider
 - [ ] LINE provider
 - [ ] desktop notification provider
@@ -76,38 +77,50 @@
 
 ---
 
-## Phase 6 — Dashboard MVP
+## Phase 6 — Dashboard MVP ✓
 
 ### Backend
 
-- [ ] Express server
-- [ ] WebSocket server
-- [ ] REST API
-- [ ] session API
-- [ ] logs/output API
-- [ ] send-input API
-- [ ] continue-session API
+- [x] HTTP server (Node built-in, no Express)
+- [x] SSE live stream (`/events`)
+- [x] REST API
+- [x] session API (spawn, adopt, kill, respawn, list, output)
+- [x] send-input API (`/send`, `/queue`)
+- [x] continue-session API (queue + autoFeed)
+- [x] git panel API (status, diff, commit)
+- [x] file browser API (list, read)
+- [x] system info API (CPU, RAM, disk)
+- [x] usage stats API (7-day token aggregation from JSONL)
+- [x] cloudflared tunnel support
+- [x] web password auth (token-based)
+- [x] structured JSONL message parsing (ClaudeOutputParser — in progress)
 
 ### Frontend
 
-- [ ] Vite frontend
-- [ ] session sidebar
-- [ ] live output panel
-- [ ] session status badges
-- [ ] send-input box
-- [ ] continue button
-- [ ] auto-scroll terminal output
-- [ ] reconnect handling
+- [x] React SPA embedded in ui.html (no build step)
+- [x] session sidebar with live status list and quick-jump navigation (v0.14.7)
+- [x] live terminal output panel (ANSI → HTML)
+- [x] session status badges (running / idle / needs-response / limit / offline)
+- [x] send-input box (multi-line textarea)
+- [x] menu CTA strip (numbered choice buttons)
+- [x] auto-scroll terminal output
+- [x] reconnect / SSE fallback polling
+- [x] git diff & commit panel
+- [x] file browser panel (desktop) / embedded in mobile Info tab
+- [x] queue panel with autoFeed
+- [x] system info bar
+- [x] dark/light theme toggle
+- [x] mobile-optimised layout (fixed footer, full-screen terminal)
 
 ---
 
-## Phase 7 — State & Persistence
+## Phase 7 — State & Persistence (partial)
 
 ### Persistent State
 
+- [x] JSON config storage (`~/.claude-pilot/config.json`)
+- [x] session history (last-seen, path, command)
 - [ ] SQLite support
-- [ ] JSON fallback storage
-- [ ] session history
 - [ ] event history
 - [ ] notification history
 - [ ] resume history
@@ -145,14 +158,15 @@
 
 # Nice To Have
 
+- [x] usage metrics (SysInfoBar — CPU, RAM, disk, 7d tokens)
+- [x] token usage estimates (live from JSONL + footer parser)
+- [x] mobile-friendly dashboard
+- [x] git status integration
+- [ ] structured message viewer (ClaudeOutputParser wired to UI — in progress)
 - [ ] session tags
 - [ ] project grouping
-- [ ] usage metrics
 - [ ] cost tracking
-- [ ] token usage estimates
-- [ ] mobile-friendly dashboard
 - [ ] markdown artifact viewer
-- [ ] git status integration
 - [ ] task templates
 - [ ] session snapshots
 - [ ] session replay
