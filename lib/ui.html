@@ -292,6 +292,85 @@
   @media (min-width:1200px) {
     .session-cards{grid-template-columns:repeat(auto-fill,minmax(340px,1fr));}
   }
+
+  /* ── Chat Messages View ────────────────────────────────── */
+  .chat-view{display:flex;flex-direction:column;max-height:calc(100vh - 280px);overflow-y:auto;padding:0;scroll-behavior:smooth;}
+  .chat-view.mobile{max-height:calc(100dvh - 210px);}
+  .chat-empty{padding:48px 32px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7;}
+
+  /* Turn — a user prompt + assistant response group */
+  .chat-turn{margin-bottom:24px;}
+
+  /* User bubble */
+  .chat-user{display:flex;justify-content:flex-end;padding:0 16px;margin-bottom:12px;}
+  .chat-user-bubble{max-width:82%;background:oklch(45% 0.18 260);color:#fff;padding:10px 16px;border-radius:18px 18px 4px 18px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+
+  /* Claude row */
+  .chat-claude{display:flex;gap:10px;padding:0 16px;}
+  .chat-claude-avatar{flex-shrink:0;width:28px;height:28px;border-radius:8px;background:oklch(55% 0.2 130);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;margin-top:2px;}
+  .chat-claude-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;}
+
+  /* Assistant text */
+  .chat-asst-text{font-size:14px;line-height:1.7;color:var(--text);}
+  .chat-asst-text p{margin:0 0 10px;}
+  .chat-asst-text p:last-child{margin-bottom:0;}
+  .chat-asst-text code{background:oklch(22% 0.02 50);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12.5px;color:oklch(80% 0.05 80);}
+  .chat-asst-text pre{background:oklch(15% 0.012 50);border:1px solid oklch(26% 0.02 50);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:var(--font-mono);font-size:12px;line-height:1.55;margin:10px 0;color:oklch(80% 0.015 70);}
+  .chat-asst-text pre code{background:none;padding:0;font-size:inherit;color:inherit;}
+  .chat-asst-text strong{color:oklch(90% 0.01 70);}
+  .chat-asst-text em{color:oklch(75% 0.03 60);}
+  .chat-asst-text a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;}
+  .chat-asst-text ul,.chat-asst-text ol{margin:6px 0;padding-left:20px;}
+  .chat-asst-text li{margin:2px 0;}
+
+  /* Tool card — compact inline */
+  .chat-tool{border:1px solid oklch(26% 0.02 50);border-radius:8px;overflow:hidden;background:oklch(16% 0.012 50);transition:border-color .15s;}
+  .chat-tool:hover{border-color:oklch(38% 0.04 50);}
+  .chat-tool-bar{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;user-select:none;}
+  .chat-tool-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .chat-tool-dot.running{background:#3b82f6;box-shadow:0 0 6px #3b82f6;animation:pulse-dot 1.2s infinite;}
+  .chat-tool-dot.completed{background:#22c55e;}
+  .chat-tool-dot.failed{background:#ef4444;}
+  .chat-tool-dot.canceled{background:#6b7280;}
+  @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.7)}}
+  .chat-tool-icon{font-size:12px;flex-shrink:0;}
+  .chat-tool-name{font-family:var(--font-mono);font-size:11px;font-weight:600;color:oklch(70% 0.08 160);text-transform:uppercase;letter-spacing:.4px;}
+  .chat-tool-summary{font-size:12px;color:oklch(60% 0.015 50);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .chat-tool-chevron{font-size:9px;color:oklch(45% 0.015 50);transition:transform .15s;flex-shrink:0;}
+  .chat-tool-chevron.open{transform:rotate(90deg);}
+
+  .chat-tool-body{padding:10px 14px;border-top:1px solid oklch(22% 0.02 50);background:oklch(13% 0.008 50);max-height:280px;overflow:auto;}
+  .chat-tool-body pre{margin:0;font-family:var(--font-mono);font-size:11px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:oklch(72% 0.015 70);}
+  .chat-tool-body .shell-prompt{color:#22c55e;user-select:none;}
+  .chat-tool-body .shell-cmd{color:oklch(85% 0.015 70);}
+  .chat-tool-body .diff-added{color:#22c55e;}
+  .chat-tool-body .diff-removed{color:#ef4444;}
+  .chat-tool-file{font-size:10px;color:oklch(50% 0.04 160);margin-bottom:6px;font-family:var(--font-mono);}
+
+  /* Thought */
+  .chat-thought{font-size:12.5px;color:oklch(62% 0.025 60);line-height:1.55;padding:6px 12px;border-left:2.5px solid oklch(40% 0.05 60);margin:2px 0;font-style:italic;background:oklch(17% 0.01 50);border-radius:0 5px 5px 0;}
+
+  /* Activity log — small centered badge */
+  .chat-log{display:flex;justify-content:center;margin:8px 0;}
+  .chat-log-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:10px;font-size:10.5px;font-family:var(--font-mono);}
+  .chat-log-badge.error{color:#ef4444;background:oklch(18% 0.03 10);}
+  .chat-log-badge.success{color:#22c55e;background:oklch(18% 0.03 140);}
+  .chat-log-badge.info{color:#3b82f6;background:oklch(18% 0.03 240);}
+
+  /* Compaction divider */
+  .chat-compaction{text-align:center;padding:10px 0;font-size:10.5px;color:oklch(42% 0.015 50);margin:8px 0;}
+  .chat-compaction-line{display:flex;align-items:center;gap:10px;}
+  .chat-compaction-line::before,.chat-compaction-line::after{content:'';flex:1;height:1px;background:oklch(26% 0.02 50);}
+
+  /* Todo list */
+  .chat-todo{display:flex;flex-direction:column;gap:3px;padding:4px 0;}
+  .chat-todo-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;}
+  .chat-todo-box{width:15px;height:15px;border-radius:4px;border:1.5px solid oklch(38% 0.03 50);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#22c55e;}
+  .chat-todo-box.done{background:oklch(18% 0.03 140);border-color:#22c55e;}
+  .chat-todo-label.done{text-decoration:line-through;color:oklch(42% 0.015 50);}
+
+  /* Timestamp */
+  .chat-ts{font-size:10px;color:oklch(38% 0.015 50);margin-bottom:3px;padding:0 2px;}
 </style>
 </head>
 <body>
@@ -1111,6 +1190,7 @@ function DashboardScreen({ onNavigate, sessions, activity, serverStatus, sortBy,
 function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   const isOffline = session.status === 'offline';
   const [output, setOutput] = useState('');
+  const [messages, setMessages] = useState([]);
   const [msg, setMsg] = useState('');
   const [sending, setSending] = useState(false);
   const [emoji, setEmoji] = useState(session.emoji || '');
@@ -1248,6 +1328,9 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
         .then(d => {
           if (!mounted) return;
           setOutput(d.output || '');
+          if (d.messages && d.messages.length > 0) {
+            setMessages(d.messages);
+          }
           setConnecting(false);
           setPollError(false);
         })
@@ -1422,6 +1505,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
       setMsg(next === -1 ? '' : cmdHistoryRef.current[next] || '');
       return;
     }
+    if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); sendKey('BTab'); return; }
     if (e.key === 'Tab') { e.preventDefault(); sendKey('Tab'); return; }
     // Ctrl+C / Ctrl+D only when input is empty — otherwise let the browser handle selection etc.
     if (e.ctrlKey && e.key === 'c' && !msg) { e.preventDefault(); sendKey('C-c'); return; }
@@ -1553,6 +1637,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
 
       <div className="tab-bar">
         <button className={`tab-btn ${activeTab === 'terminal' ? 'active' : ''}`} onClick={() => setActiveTab('terminal')}>⬛ Terminal</button>
+        <button className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`} onClick={() => setActiveTab('messages')}>💬 Messages</button>
         {isMobile && <button className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>ℹ Info</button>}
         {isMobile && <button className={`tab-btn ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => setActiveTab('queue')}>≡ Queue</button>}
         <button className={`tab-btn ${activeTab === 'git' ? 'active' : ''}`} onClick={() => setActiveTab('git')}>± Git</button>
@@ -1644,6 +1729,7 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
                   <button className="btn-key" onClick={() => sendKey('Up')} title="Arrow Up — navigate menus">↑</button>
                   <button className="btn-key" onClick={() => sendKey('Down')} title="Arrow Down — navigate menus">↓</button>
                   <button className="btn-key" onClick={() => sendKey('Tab')} title="Tab — complete / cycle options">⇥</button>
+                  <button className="btn-key" onClick={() => sendKey('BTab')} title="Shift+Tab — reverse tab / back">⇤</button>
                   <button className="btn-key" onClick={() => sendKey('C-c')} title="Ctrl+C — interrupt (or press Ctrl+C in empty input)">^C</button>
                   <button className="btn-key" onClick={() => sendKey('C-d')} title="Ctrl+D — EOF / exit (or press Ctrl+D in empty input)">^D</button>
                   <button className="btn-key" onClick={() => sendKey('Enter')} title="Send bare Enter to tmux">↵</button>
@@ -1687,6 +1773,10 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
           </div>
         );
       })()}
+
+      {activeTab === 'messages' && (
+        <MessagesView messages={messages} hasOutput={!!output} sessionName={session.name} isMobile={isMobile} />
+      )}
 
       {activeTab === 'info' && isMobile && (
         <div>
@@ -1755,6 +1845,224 @@ function SessionDetailScreen({ session, onBack, onKilled, onRespawned }) {
   );
 }
 
+/* --- Messages View (chat bubbles) --- */
+
+const TOOL_ICONS = {
+  read:'📄', write:'✏️', edit:'🔧', shell:'⚡', search:'🔍',
+  fetch:'🌐', think:'💭', todo:'✅', task:'🤖', web_search:'🔍', web_fetch:'🌐',
+};
+
+function MessagesView({ messages, hasOutput, sessionName, isMobile }) {
+  const [expandedTools, setExpandedTools] = React.useState(new Set());
+  const chatEndRef = React.useRef(null);
+  const chatViewRef = React.useRef(null);
+  const [autoScroll, setAutoScroll] = React.useState(true);
+
+  const toggleTool = (id) => {
+    setExpandedTools(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  // Auto-scroll to bottom on new messages, unless user scrolled up
+  React.useEffect(() => {
+    if (autoScroll && chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, autoScroll]);
+
+  const handleScroll = () => {
+    const el = chatViewRef.current;
+    if (!el) return;
+    const dist = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    setAutoScroll(dist < 60);
+  };
+
+  if (!messages || messages.length === 0) {
+    return React.createElement('div', { className: 'chat-empty' },
+      hasOutput
+        ? 'No structured messages parsed yet. The output format may not be recognized — switch to Terminal for raw output.'
+        : 'No output yet. The session may still be starting.'
+    );
+  }
+
+  const formatTime = (ts) => {
+    if (!ts) return '';
+    const d = new Date(ts);
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      + (sameDay ? '' : ' ' + d.toLocaleDateString([], { month: 'short', day: 'numeric' }));
+  };
+
+  return React.createElement('div', {
+    className: 'chat-view' + (isMobile ? ' mobile' : ''),
+    ref: chatViewRef,
+    onScroll: handleScroll
+  },
+    React.createElement('div', { style: { padding: '12px 0' } },
+        messages.map(function (item) {
+          var k = item.kind;
+          if (k === 'user_message') {
+            return React.createElement('div', { key: item.id, className: 'chat-turn' },
+              React.createElement('div', { className: 'chat-user' },
+                React.createElement('div', { style: { maxWidth: '82%' } },
+                  React.createElement('div', { className: 'chat-ts', style: { textAlign: 'right' } }, formatTime(item.timestamp)),
+                  React.createElement('div', { className: 'chat-user-bubble' }, item.text)
+                )
+              )
+            );
+          }
+          if (k === 'assistant_message') {
+            return React.createElement('div', { key: item.id, className: 'chat-turn' },
+              React.createElement('div', { className: 'chat-claude' },
+                React.createElement('div', { className: 'chat-claude-avatar', title: 'Claude' }, 'C'),
+                React.createElement('div', { className: 'chat-claude-body' },
+                  React.createElement('div', { className: 'chat-ts' }, formatTime(item.timestamp)),
+                  React.createElement('div', { className: 'chat-asst-text', dangerouslySetInnerHTML: { __html: chatMarkdown(item.text) } })
+                )
+              )
+            );
+          }
+          if (k === 'tool_call') {
+            var isOpen = expandedTools.has(item.id);
+            var icon = TOOL_ICONS[item.toolName] || '🔧';
+            return React.createElement('div', { key: item.id, className: 'chat-turn' },
+              React.createElement('div', { className: 'chat-claude' },
+                React.createElement('div', { className: 'chat-claude-avatar', title: 'Claude' }, 'C'),
+                React.createElement('div', { className: 'chat-claude-body' },
+                  React.createElement('div', { className: 'chat-tool' },
+                    React.createElement('div', { className: 'chat-tool-bar', onClick: function () { toggleTool(item.id); } },
+                      React.createElement('div', { className: 'chat-tool-dot ' + (item.status || 'completed') }),
+                      React.createElement('span', { className: 'chat-tool-icon' }, icon),
+                      React.createElement('span', { className: 'chat-tool-name' }, item.toolName),
+                      React.createElement('span', { className: 'chat-tool-summary' }, item.summary || ''),
+                      React.createElement('span', { className: 'chat-tool-chevron' + (isOpen ? ' open' : '') }, '▶')
+                    ),
+                    isOpen && item.detail ? React.createElement('div', { className: 'chat-tool-body' },
+                      React.createElement(ToolDetailContent, { detail: item.detail })
+                    ) : null
+                  )
+                )
+              )
+            );
+          }
+          if (k === 'thought') {
+            return React.createElement('div', { key: item.id, className: 'chat-turn' },
+              React.createElement('div', { className: 'chat-claude' },
+                React.createElement('div', { className: 'chat-claude-avatar', title: 'Claude' }, 'C'),
+                React.createElement('div', { className: 'chat-claude-body' },
+                  React.createElement('div', { className: 'chat-thought' }, item.text)
+                )
+              )
+            );
+          }
+          if (k === 'activity_log') {
+            return React.createElement('div', { key: item.id, className: 'chat-log' },
+              React.createElement('span', { className: 'chat-log-badge ' + item.activityType },
+                React.createElement('span', null, item.activityType === 'error' ? '✕' : item.activityType === 'success' ? '✓' : 'ℹ'),
+                React.createElement('span', null, item.message)
+              )
+            );
+          }
+          if (k === 'todo_list') {
+            return React.createElement('div', { key: item.id, className: 'chat-turn' },
+              React.createElement('div', { className: 'chat-claude' },
+                React.createElement('div', { className: 'chat-claude-avatar', title: 'Claude' }, 'C'),
+                React.createElement('div', { className: 'chat-claude-body' },
+                  React.createElement('div', { className: 'chat-todo' },
+                    item.items.map(function (t, i) {
+                      return React.createElement('div', { key: i, className: 'chat-todo-row' },
+                        React.createElement('div', { className: 'chat-todo-box' + (t.completed ? ' done' : '') }, t.completed ? '✓' : ''),
+                        React.createElement('span', { className: 'chat-todo-label' + (t.completed ? ' done' : '') }, t.text)
+                      );
+                    })
+                  )
+                )
+              )
+            );
+          }
+          if (k === 'compaction') {
+            return React.createElement('div', { key: item.id, className: 'chat-compaction' },
+              React.createElement('div', { className: 'chat-compaction-line' },
+                React.createElement('span', null, 'context compacted')
+              ),
+              item.preTokens ? React.createElement('div', { style: { marginTop: 2, fontSize: 10, color: 'oklch(38% 0.015 50)' } },
+                '~' + Math.round(item.preTokens).toLocaleString() + ' tokens'
+              ) : null
+            );
+          }
+          return null;
+        }),
+      React.createElement('div', { ref: chatEndRef, style: { height: 8 } })
+    )
+  );
+}
+
+function ToolDetailContent(props) {
+  var d = props.detail;
+  var type = d.type;
+  if (type === 'shell') {
+    return React.createElement('div', null,
+      d.filePath ? React.createElement('div', { className: 'chat-tool-file' }, d.filePath) : null,
+      React.createElement('pre', null,
+        React.createElement('span', { className: 'shell-prompt' }, '$ '),
+        React.createElement('span', { className: 'shell-cmd' }, d.rawName || 'shell')
+      ),
+      d.output ? React.createElement('pre', { style: { marginTop: 6 } }, d.output.trim()) : null,
+      d.error ? React.createElement('pre', { style: { color: '#ef4444', marginTop: 6 } }, d.error) : null
+    );
+  }
+  if (type === 'read') {
+    return React.createElement('div', null,
+      d.filePath ? React.createElement('div', { className: 'chat-tool-file' }, d.filePath) : null,
+      d.content ? React.createElement('pre', null, d.content.trim()) : null
+    );
+  }
+  if (type === 'write') {
+    return React.createElement('div', null,
+      d.filePath ? React.createElement('div', { className: 'chat-tool-file', style: { color: '#22c55e' } }, 'wrote ' + d.filePath) : null,
+      d.content ? React.createElement('pre', null, d.content.trim()) : null
+    );
+  }
+  if (type === 'edit') {
+    return React.createElement('div', null,
+      d.filePath ? React.createElement('div', { className: 'chat-tool-file' }, d.filePath) : null,
+      d.content ? React.createElement('pre', null, d.content.trim()) : null
+    );
+  }
+  return React.createElement('div', null,
+    d.filePath ? React.createElement('div', { className: 'chat-tool-file' }, d.filePath) : null,
+    d.content ? React.createElement('pre', null, d.content.trim()) : null,
+    d.error ? React.createElement('pre', { style: { color: '#ef4444' } }, d.error) : null,
+    !d.content && !d.error ? React.createElement('span', { style: { color: 'var(--muted)', fontSize: 11 } }, 'No additional details') : null
+  );
+}
+
+// Markdown → HTML for assistant chat bubbles
+function chatMarkdown(text) {
+  if (!text) return '';
+  let html = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Fenced code blocks
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Bold and italic
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+  // Unordered lists
+  html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+  // Paragraphs
+  html = html.split('\n\n').map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '').join('');
+  return html;
+}
+
 /* --- Create Session --- */
 function CreateSessionScreen({ onBack, onCreated }) {
   const [name, setName] = useState('');
@@ -1811,7 +2119,7 @@ function CreateSessionScreen({ onBack, onCreated }) {
           <option value="custom">custom…</option>
         </select>
         {command === 'custom' && (
-          <input className="form-input" style={{ marginTop: 8 }} placeholder="e.g. aider" value={customCommand} onChange={e => setCustomCommand(e.target.value)} />
+          <input className="form-input" style={{ marginTop: 8 }} placeholder="e.g. claude-deepseek, aider, gemini" value={customCommand} onChange={e => setCustomCommand(e.target.value)} />
         )}
         {(command === 'opencode' || command === 'codex') && (
           <div className="form-hint">Running/idle detection uses output hash polling. Limit auto-resume and token tracking are claude-only.</div>
