@@ -7,7 +7,7 @@ status: active
 confidence: source_supported
 source_files:
   - lib/SessionManager.js
-last_reviewed: 2026-05-08
+last_reviewed: 2026-05-18
 tags:
   - type/capability
   - domain/session
@@ -16,14 +16,16 @@ tags:
 
 # Create Session
 
-Creates a new tmux window for a Claude Code session, records it in config, and starts the process watcher.
+Creates a new tmux session for a Claude Code agent, records it in config, and starts the adapter-based process watcher.
 
 ## What it does
 
-- `spawn(dirPath, name, command = 'claude')` — creates a new tmux session running the given command, stores `{ name, path, command, status, startedAt, resumeAt }`, adds to history, starts watcher
-- `adopt(name, dirPath, command = 'claude')` — registers an already-running tmux session for watching; stores `command` in session object and calls `addToHistory(name, dirPath, command)` so the agent type is persisted in history and survives future restarts. **Previously `command` was omitted from `addToHistory()`, silently overwriting history with `'claude'` on every re-adopt (fixed in v0.14.6).**
-- Appends the new session entry to persistent config via [[core-save-config|config]]
-- Spawns a [[session-watch-process|Watcher]] instance for each session
+- `spawn(dirPath, name, command = 'claude')` — creates a new tmux session running the given command, stores `{ name, path, command, status, startedAt, resumeAt }`, adds to history, starts `TmuxSessionAdapter`
+- `adopt(name, dirPath, command = 'claude')` — registers an already-running tmux session for watching; calls `addToHistory()` so agent type survives future restarts
+- `_attach(name, adapter)` — subscribes to the adapter's `'status'`, `'tokens'`, and `'stopped'` events; wires in limit handling and Telegram notifications
+- `_handleLimit(name, session, data)` — called by `'status'('limit')` event; waits until `resetAtMs`, verifies limit cleared, calls `adapter.sendInput(resumeCommand)`, notifies Telegram
+- `_scheduleNeedsResponseNotify(name, session, data)` — called by `'status'('needs-response')`; fires Telegram after 30 s with inline keyboard if numbered menu options are present
+- Limit/telegram logic was previously inline in `Watcher.js`; moved here in the SessionAdapter refactor so adapters are pure I/O and status-detection components
 
 ## Entry point
 
@@ -33,5 +35,6 @@ Creates a new tmux window for a Claude Code session, records it in config, and s
 
 - [[session|Session domain]]
 - [[session-watch-process|Watch Process]]
+- [[session-adapter-concept|Session Adapter Pattern]]
 - [[core-save-config|Save Config]]
 - [[cli-launch-session|Launch Session]]

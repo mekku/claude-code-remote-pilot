@@ -14,11 +14,13 @@
     "id": "session",
     "type": "domain",
     "name": "Session",
-    "summary": "tmux-based session lifecycle: create, watch, auto-resume, remove offline",
+    "summary": "tmux-based session lifecycle: create, watch, auto-resume, remove offline. Uses SessionAdapter EventEmitter pattern — TmuxSessionAdapter for status detection, SessionManager for orchestration.",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
       "lib/SessionManager.js",
+      "lib/adapters/SessionAdapter.js",
+      "lib/adapters/TmuxSessionAdapter.js",
       "lib/Watcher.js"
     ]
   },
@@ -106,10 +108,11 @@
     "id": "session-watch-process",
     "type": "capability",
     "name": "Watch Process",
-    "summary": "Poll tmux pane for exit or stale output; claude: pattern-match running/needs-response/limit/idle; opencode/codex/generic: hash-change running/idle (4 s stagnant → idle); limit auto-resume and token tracking are claude-only",
+    "summary": "Poll tmux pane for exit or stale output; claude: pattern-match running/needs-response/limit/idle; opencode/codex/generic: hash-change running/idle (4 s stagnant → idle). Current impl: TmuxSessionAdapter emits status events; SessionManager handles limit/telegram. Legacy: Watcher.js (kept for reference).",
     "status": "active",
     "confidence": "source_supported",
     "source_files": [
+      "lib/adapters/TmuxSessionAdapter.js",
       "lib/Watcher.js"
     ]
   },
@@ -264,6 +267,18 @@
       "lib/WebServer.js",
       "lib/config.js",
       "lib/ui.html"
+    ]
+  },
+  {
+    "id": "session-adapter-concept",
+    "type": "concept",
+    "name": "Session Adapter Pattern",
+    "summary": "SessionAdapter EventEmitter base class that abstracts lifecycle, I/O, and status-detection per backend. Adapter emits 'status'/'tokens'/'stopped' events; SessionManager owns limit auto-resume and Telegram notifications. Enables non-tmux backends (ClaudeSDKAdapter planned).",
+    "status": "active",
+    "confidence": "source_supported",
+    "source_files": [
+      "lib/adapters/SessionAdapter.js",
+      "lib/adapters/TmuxSessionAdapter.js"
     ]
   },
   {

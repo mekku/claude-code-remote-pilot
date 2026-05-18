@@ -6,14 +6,19 @@ domain: session
 status: active
 confidence: source_supported
 source_files:
+  - lib/adapters/TmuxSessionAdapter.js
   - lib/Watcher.js
-last_reviewed: 2026-05-13
-version: 0.14.7
+last_reviewed: 2026-05-18
+version: 0.14.9
 tags:
   - type/capability
   - domain/session
   - status/active
 ---
+
+# Watch Process
+
+> **Note:** `lib/Watcher.js` is the legacy implementation. `lib/adapters/TmuxSessionAdapter.js` is the current implementation (introduced in the SessionAdapter refactor). Both have identical status-detection logic; `Watcher.js` is kept for historical reference. See [[session-adapter-concept|Session Adapter Pattern]] for the design rationale.
 
 # Watch Process
 
@@ -68,12 +73,13 @@ When the 30-second timer fires and the session is still `needs-response`, the Wa
 
 ## Entry point
 
-`lib/Watcher.js` — instantiated by `lib/SessionManager.js` per session
+`lib/adapters/TmuxSessionAdapter.js` — instantiated by `lib/SessionManager.js` per session (replaces `lib/Watcher.js`)
 
 ## Related
 
 - [[session|Session domain]]
 - [[session-resume|Auto-Resume]]
+- [[session-adapter-concept|Session Adapter Pattern]]
 - [[core-send-notification|Send Notification]]
 - [[core-menu-options|Menu Options Parser]]
 - [[session-tmux-concept|Tmux Session Concept]]

@@ -25,9 +25,9 @@
 - [x] create SessionManager
 - [x] session lifecycle handling (spawn, adopt, kill, respawn, killAll)
 - [x] persistent config loading
-- [ ] create Session abstraction (class)
-- [ ] create SessionAdapter interface
-- [ ] implement TmuxSessionAdapter
+- [x] create Session abstraction (class)
+- [x] create SessionAdapter interface (EventEmitter base — v0.14.9)
+- [x] implement TmuxSessionAdapter (v0.14.9)
 - [ ] structured logging
 - [ ] event emitter system
 

@@ -19,6 +19,15 @@
     "session-auto-resume-concept",
     "resume-window-killed-risk"
   ],
+  "lib/adapters/SessionAdapter.js": [
+    "session",
+    "session-adapter-concept"
+  ],
+  "lib/adapters/TmuxSessionAdapter.js": [
+    "session",
+    "session-watch-process",
+    "session-adapter-concept"
+  ],
   "lib/Watcher.js": [
     "session",
     "session-resume",

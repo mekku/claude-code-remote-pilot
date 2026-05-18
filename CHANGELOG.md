@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.14.9 — 2026-05-18
+
+### Added
+- **SessionAdapter pattern** — new `lib/adapters/SessionAdapter.js` (EventEmitter base class) and `lib/adapters/TmuxSessionAdapter.js` (tmux backend). Adapter emits `'status'` / `'tokens'` / `'stopped'` events; `SessionManager` subscribes to handle limit auto-resume and Telegram notifications. Separates tmux I/O from orchestration logic, clearing the path for a `ClaudeSDKAdapter`.
+
+### Fixed
+- `PATCH /api/sessions/:name/command` now correctly updates `entry.session.command` and `entry.adapter.command` (was setting `.command` on the `{ session, watcher }` entry wrapper — a no-op bug introduced in v0.14.8).
+
+### Changed
+- `SessionManager` no longer imports `Watcher.js` directly; uses `TmuxSessionAdapter` instead. `Watcher.js` is kept for historical reference.
+- Limit auto-resume and Telegram notification logic moved from `Watcher._handleLimit` / `Watcher._scheduleNeedsResponseNotify` into `SessionManager._handleLimit` / `SessionManager._scheduleNeedsResponseNotify`.
+
 ## 0.14.8 — 2026-05-17
 
 ### Added
